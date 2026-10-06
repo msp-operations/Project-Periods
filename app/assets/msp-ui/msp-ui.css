@@ -62,11 +62,11 @@
 /* 3. Base -------------------------------------------------------------------- */
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body.msp-body{margin:0;font-family:var(--msp-font);background:var(--msp-g0);color:var(--msp-g9);min-height:100vh;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
-.msp-content a:not([class*=msp-btn]):not(.msp-chip):not(.msp-tab){color:var(--msp-navy)}
-.msp-content h1,.msp-content h2,.msp-content h3{font-family:var(--msp-font-display);letter-spacing:-.01em;color:inherit;line-height:1.2;margin:0 0 .5em}
-.msp-content h1{font-size:26px;font-weight:700}
-.msp-content h2{font-size:20px;font-weight:700}
-.msp-content h3{font-size:15px;font-weight:600;font-family:var(--msp-font)}
+:where(.msp-content) :where(a:not([class*=msp-btn]):not(.msp-chip):not(.msp-tab)){color:var(--msp-navy)}
+:where(.msp-content) :where(h1,h2,h3){font-family:var(--msp-font-display);letter-spacing:-.01em;color:inherit;line-height:1.2;margin:0 0 .5em}
+:where(.msp-content) :where(h1){font-size:26px;font-weight:700}
+:where(.msp-content) :where(h2){font-size:20px;font-weight:700}
+:where(.msp-content) :where(h3){font-size:15px;font-weight:600;font-family:var(--msp-font)}
 .msp-content ::selection{background:rgba(110,210,236,.35)}
 
 /* 4. Frame ------------------------------------------------------------------- */
