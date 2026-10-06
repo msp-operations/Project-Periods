@@ -1,7 +1,8 @@
 <!doctype html>
 <!--
-  projects.html - the catalogue as a Collent-style list: filters in the
-  column headers, one row per project, the eye icon opens the full description.
+  projects.html - the catalogue as a filterable list: level chips above the
+  table, filters in the column headers, one row per project, the eye icon
+  opens the full description.
 -->
 <html lang="en">
 <head>
@@ -10,16 +11,17 @@
 <title>Projects - MSP Project Periods</title>
 <link rel="icon" type="image/png" href="assets/img/msp-logo.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-<link rel="stylesheet" href="assets/collent.css?v=202610061044">
+<link rel="stylesheet" href="assets/msp-ui/msp-ui.css?v=202610061253">
+<link rel="stylesheet" href="assets/collent.css?v=202610061253">
 </head>
 <body>
-<header class="c-header" id="chrome-header"></header>
-
-<main class="c-page">
+<main class="msp-main wide c-page">
   <h1 class="c-title">Projects</h1>
   <div id="notice"></div>
   <div class="c-panel white">
-    <div class="c-tabbar"><a class="active" href="projects.html">List</a><span class="right" id="period-label"></span></div>
+    <div class="c-tabbar"><a class="active" href="projects.html">List</a>
+      <span class="msp-chips" id="level-chips"><button type="button" class="msp-chip active" data-level="">All</button><button type="button" class="msp-chip" data-level="1000">1000-level</button><button type="button" class="msp-chip" data-level="2000">2000-level</button><button type="button" class="msp-chip" data-level="3000">3000-level</button></span>
+      <span class="right" id="period-label"></span></div>
     <div class="c-wrap">
       <table class="c-list">
         <thead><tr>
@@ -40,8 +42,6 @@
   </div>
 </main>
 
-<footer class="c-footer" id="chrome-footer"></footer>
-
 <div class="c-modal-bg" id="modal">
   <div class="c-modal">
     <div class="c-modal-head"><span id="m-title">Project</span><button id="m-x" aria-label="Close">&times;</button></div>
@@ -51,10 +51,11 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="assets/config.js?v=202610061044"></script>
-<script src="assets/demo-data.js?v=202610061044"></script>
-<script src="assets/supabase.js?v=202610061044"></script>
-<script src="assets/chrome.js?v=202610061044"></script>
+<script src="assets/config.js?v=202610061253"></script>
+<script src="assets/demo-data.js?v=202610061253"></script>
+<script src="assets/supabase.js?v=202610061253"></script>
+<script src="assets/msp-ui/msp-shell.js?v=202610061253"></script>
+<script src="assets/chrome.js?v=202610061253"></script>
 <script>
 (async function () {
   const $ = (id) => document.getElementById(id);
@@ -79,6 +80,10 @@
   $("f-loc").innerHTML += locs.map((s) => `<option>${esc(s)}</option>`).join("");
   const urlLevel = new URLSearchParams(location.search).get("level");
   if (urlLevel) $("f-level").value = urlLevel;
+  // the level chips mirror the Level filter in the table header
+  const chips = [...document.querySelectorAll("#level-chips [data-level]")];
+  const syncChips = () => chips.forEach((c) => c.classList.toggle("active", c.dataset.level === $("f-level").value));
+  chips.forEach((c) => c.addEventListener("click", () => { $("f-level").value = c.dataset.level; render(); }));
 
   const facText = (f) => Object.entries(f || {}).map(([k, v]) => {
     const label = (MSP.FACILITIES.find((x) => x[0] === k) || [k, k])[1];
@@ -86,6 +91,7 @@
   }).join(", ");
 
   function render() {
+    syncChips();
     const q = $("q").value.trim().toLowerCase(), lv = $("f-level").value, su = $("f-sup").value, lo = $("f-loc").value;
     const list = projects.filter((p) => (!lv || p.level === lv) && (!su || p.supervisor === su || p.co_supervisor === su) && (!lo || p.location === lo) &&
       (!q || [p.code, p.title, p.supervisor, p.co_supervisor, p.description, p.slp_leaders].join(" ").toLowerCase().includes(q)));

@@ -1,36 +1,29 @@
-/* The shared page chrome: header bar, footer, and the two slide-in panes that
-   Collent has behind its header links. "Dashboard" opens the menu pane from any
-   page, "Need help?" opens a short help form that composes an email to the
-   committee. Keyboard: Alt+F1 toggles the menu, Esc closes whatever is open.
-   Call MSPChrome.render() once per page after config.js is loaded.
-   Marks: the UM flag (cropped from the faculty logo) and the MSP emblem, white
-   on the blue bar, grey in the footer. */
+/* The shared page chrome. Since the remodel (6 Oct 2026) the frame is the
+   shared MSP sidebar from assets/msp-ui: msp-shell.js builds it, msp-ui.css
+   styles it, and this file hands the shell the tool's title, navigation and
+   version line. The old Collent-style header bar and slide-in menu pane are
+   gone (the sidebar is the menu now); the "Need help?" pane stays, opened
+   from the sidebar or from any element with data-pane="help", and composes an
+   email to the committee. Keyboard: Alt+F1 jumps to the navigation (opens the
+   drawer on a phone), Esc closes the help pane.
+   Call MSPChrome.render() once per page after config.js and msp-shell.js. */
 (function () {
-  const MARK = (variant) => `<img class="c-mark" src="assets/img/msp-logo-${variant}.png" alt="Maastricht Science Programme">`;
+  const VERSION = "0.1";
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
-  function menuHTML() {
-    return `
-      <div class="c-sections">
-        <section class="c-sec"><h2><i class="fa-solid fa-book-open"></i> Projects</h2><ul>
-          <li><a href="projects.html">Projects</a></li>
-          <li><a href="projects.html?level=1000">1000-level</a></li>
-          <li><a href="projects.html?level=2000">2000-level</a></li>
-          <li><a href="projects.html?level=3000">3000-level</a></li></ul></section>
-        <section class="c-sec"><h2><i class="fa-solid fa-pen-to-square"></i> Forms</h2><ul>
-          <li><a href="submit.html">Offer a project</a></li>
-          <li><a href="submit.html#guidelines">Description guidelines</a></li></ul></section>
-        <section class="c-sec"><h2><i class="fa-solid fa-calendar-days"></i> Period</h2><ul>
-          <li><a href="index.html">Dates and state</a></li></ul></section>
-        <section class="c-sec"><h2><i class="fa-solid fa-user-shield"></i> Committee</h2><ul>
-          <li><a href="admin.html">Dashboard</a></li>
-          <li><a href="admin.html">Log in</a></li></ul></section>
-        <section class="c-sec"><h2><i class="fa-solid fa-circle-info"></i> Information</h2><ul>
-          <li><a href="index.html">About the project period</a></li></ul></section>
-        <section class="c-sec"><h2><i class="fa-solid fa-circle-question"></i> Support</h2><ul>
-          <li><a href="#" data-pane="help">Contacts</a></li>
-          <li><a href="#" data-pane="help">Need help?</a></li></ul></section>
-      </div>`;
+  /* The sidebar navigation: the entries of the old menu pane, flattened.
+     One "Projects" item; the level filter lives inside the catalogue page
+     (chips above the list plus the Level column filter). */
+  function navItems() {
+    return [
+      { label: "Dashboard",              hint: "Dates and state",   href: "index.html",              icon: "grid" },
+      { label: "Projects",               hint: "The catalogue",     href: "projects.html",           icon: "list" },
+      { label: "Offer a project",        hint: "Staff form",        href: "submit.html",             icon: "edit" },
+      { label: "Description guidelines", hint: "Before you write",  href: "submit.html#guidelines",  icon: "filetext" },
+      { divider: true },
+      { label: "Committee",              hint: "Log in",            href: "admin.html",              icon: "lock" },
+      { label: "Need help?",             hint: "Contacts",          href: "#help",                   icon: "help", help: true },
+    ];
   }
 
   function helpHTML(contact) {
@@ -47,68 +40,65 @@
         <div id="help-note" class="c-hint"></div>
         <div class="c-actions"><button class="c-btn primary" id="help-send"><i class="fa-solid fa-paper-plane"></i> Send</button></div>
         <p class="c-hint" style="margin-top:14px">Send opens your mail program with the message addressed to <a href="mailto:${esc(contact)}">${esc(contact)}</a>.</p>
+        <p class="c-hint" style="margin-top:14px"><span class="c-kbd">Alt</span> + <span class="c-kbd">F1</span> jumps to the menu, <span class="c-kbd">Esc</span> closes this pane.</p>
       </div>`;
   }
 
   function render() {
     const cfg = window.MSP_CONFIG || {};
     const contact = cfg.CONTACT_EMAIL || "msp-projects@maastrichtuniversity.nl";
-    const header = document.getElementById("chrome-header");
-    const footer = document.getElementById("chrome-footer");
-    if (header) header.innerHTML = `
-      <a href="index.html" class="c-logo" aria-label="Project Periods home">
-        <img class="c-um-mark" src="assets/img/um-mark-white.png" alt="Maastricht University">
-        ${MARK("white")}
-        <span class="c-word">Project Periods</span>
-      </a>
-      <div class="c-center">Faculty of Science and Engineering<br>Maastricht Science Programme</div>
-      <nav class="c-nav">
-        <a data-pane="menu" title="Menu (Alt+F1)"><i class="fa-solid fa-gears"></i> Dashboard</a>
-        <a data-pane="help"><i class="fa-solid fa-circle-question"></i> Need help?</a>
-      </nav>`;
-    if (footer) footer.innerHTML = `
-      <div>
-        <a href="index.html">Dashboard</a> &nbsp;|&nbsp; <a href="projects.html">Projects</a> &nbsp;|&nbsp;
-        <a href="submit.html">Offer a project</a> &nbsp;|&nbsp; <a href="admin.html">Committee</a>
-        <div class="v">Project Periods 0.1 &nbsp;|&nbsp; FSE-MSP Project Committee &nbsp;|&nbsp; &copy; 2026 Maastricht University</div>
-      </div>
-      ${MARK("grey")}`;
 
-    // panes
+    // the old header and footer placeholders, if a page still carries them
+    ["chrome-header", "chrome-footer"].forEach((id) => { const el = document.getElementById(id); if (el) el.remove(); });
+
+    // the help pane and its overlay
     const overlay = document.createElement("div");
     overlay.className = "c-overlay";
-    const menu = document.createElement("aside");
-    menu.className = "c-pane"; menu.id = "c-pane-menu"; menu.setAttribute("aria-label", "Menu");
-    menu.innerHTML = `<div class="c-pane-head"><span><i class="fa-solid fa-gears"></i> Dashboard</span><button aria-label="Close" data-close>&times;</button></div>
-      <div class="c-pane-body">${menuHTML()}<p class="c-hint" style="margin-top:22px"><span class="c-kbd">Alt</span> + <span class="c-kbd">F1</span> opens this menu, <span class="c-kbd">Esc</span> closes it.</p></div>`;
     const help = document.createElement("aside");
     help.className = "c-pane"; help.id = "c-pane-help"; help.setAttribute("aria-label", "Need help?");
     help.innerHTML = `<div class="c-pane-head"><span><i class="fa-solid fa-circle-question"></i> Need help?</span><button aria-label="Close" data-close>&times;</button></div>
       <div class="c-pane-body">${helpHTML(contact)}</div>`;
-    document.body.append(overlay, menu, help);
+    document.body.append(overlay, help);
 
-    const panes = { menu, help };
-    function openPane(name) {
-      Object.keys(panes).forEach((k) => panes[k].classList.toggle("open", k === name));
+    function openHelp() {
+      help.classList.add("open");
       overlay.classList.add("open");
       document.body.classList.add("noscroll");
-      panes[name].scrollTop = 0;
+      help.scrollTop = 0;
+      const first = help.querySelector("#help-type");
+      if (first) first.focus();
     }
-    function closePanes() {
-      Object.values(panes).forEach((p) => p.classList.remove("open"));
+    function closeHelp() {
+      help.classList.remove("open");
       overlay.classList.remove("open");
       document.body.classList.remove("noscroll");
     }
-    function togglePane(name) { panes[name].classList.contains("open") ? closePanes() : openPane(name); }
+    function toggleHelp() { help.classList.contains("open") ? closeHelp() : openHelp(); }
+    function focusNav() {
+      if (window.MSPShell && window.innerWidth <= 900) { MSPShell.toggle(); return; }
+      const first = document.querySelector(".msp-sb-link");
+      if (first) first.focus();
+    }
+
+    // the shared frame
+    if (window.MSPShell) {
+      MSPShell.init({
+        title: "MSP Project Periods",
+        home: "index.html",
+        nav: navItems(),
+        meta: `<span>Project Periods ${VERSION}</span><span>FSE-MSP Project Committee</span><span>&copy; 2026 Maastricht University</span>`,
+        onNavigate: (item) => { if (item && item.help) { toggleHelp(); return false; } },
+      });
+    }
 
     document.addEventListener("click", (e) => {
       const t = e.target.closest("[data-pane]");
-      if (t) { e.preventDefault(); togglePane(t.dataset.pane); return; }
-      if (e.target.closest("[data-close]") || e.target === overlay) closePanes();
+      if (t) { e.preventDefault(); toggleHelp(); return; }
+      if (e.target.closest("[data-close]") || e.target === overlay) closeHelp();
     });
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closePanes();
-      else if (e.altKey && e.key === "F1") { e.preventDefault(); togglePane("menu"); }
+      if (e.key === "Escape") closeHelp();
+      else if (e.altKey && e.key === "F1") { e.preventDefault(); focusNav(); }
     });
 
     help.querySelector("#help-send").addEventListener("click", () => {
@@ -122,7 +112,9 @@
       note.textContent = "";
       window.location.href = `mailto:${contact}?subject=${subject}&body=${body}`;
     });
+
+    return { openHelp, closeHelp, toggleHelp };
   }
 
-  window.MSPChrome = { render, MARK, menuHTML };
+  window.MSPChrome = { render, navItems, helpHTML, VERSION };
 })();
