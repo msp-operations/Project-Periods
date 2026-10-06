@@ -1,0 +1,330 @@
+<!doctype html>
+<!--
+  admin.html - the Project Committee dashboard. Magic-link login, only
+  addresses in admin_user see anything (Row-Level Security does the real
+  gatekeeping, not this page). Review submissions, assign codes, publish the
+  catalogue, export the bible for the allocator and the booklet for print.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Committee dashboard - MSP Project Periods</title>
+<link rel="icon" type="image/png" href="assets/img/msp-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<link rel="stylesheet" href="assets/projects.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="index.html" class="logos" aria-label="Maastricht University, Faculty of Science and Engineering - home">
+      <img class="um-logo" src="assets/img/um-fse-logo.png" alt="Maastricht University - Faculty of Science and Engineering">
+      <span class="divider"></span>
+      <span class="lockup-text">Committee dashboard<small>Project Periods</small></span>
+    </a>
+    <nav>
+      <a href="index.html">Catalogue</a>
+      <a href="submit.html">Offer a project</a>
+      <a href="#" id="signout" style="display:none">Sign out</a>
+    </nav>
+  </div>
+</header>
+
+<main class="pp">
+  <div id="notice-area"></div>
+
+  <div id="login">
+    <h2>Committee login</h2>
+    <p class="lead">Enter your UM email. You get a one-time sign-in link, no password. Only addresses on the committee allow-list can see submissions.</p>
+    <div style="max-width:420px;margin-top:22px" class="pp-form">
+      <div id="login-msg"></div>
+      <div class="field"><label for="login-email">Email address</label><input id="login-email" type="email" placeholder="name@maastrichtuniversity.nl"></div>
+      <button class="btn btn-primary" id="login-btn" style="width:100%">Email me a sign-in link</button>
+    </div>
+  </div>
+
+  <div id="dash" style="display:none">
+    <div class="pp-toolbar">
+      <label for="period-select"><strong>Period</strong></label>
+      <select id="period-select"></select>
+      <label class="pp-switch"><input type="checkbox" id="sw-open"> accepting submissions</label>
+      <label class="pp-switch"><input type="checkbox" id="sw-published"> catalogue published</label>
+      <span style="flex:1"></span>
+      <button class="btn btn-ghost btn-mini" id="btn-new-period">New period</button>
+      <button class="btn btn-ghost btn-mini" id="btn-refresh">Refresh</button>
+    </div>
+    <div id="period-editor" hidden style="margin:0 0 18px">
+      <div class="pp-note">A period is one project period: label it the way the office does (for example <em>2026-27 P6</em>). The SAP year and session (300 = P3, 600 = P6) go into the office exports.</div>
+      <div class="pp-period-form" id="period-form">
+        <div><label>Label</label><input id="pf-label" placeholder="2026-27 P6"></div>
+        <div><label>Academic year</label><input id="pf-ay" placeholder="2026-27"></div>
+        <div><label>SAP year</label><input id="pf-year" placeholder="2026"></div>
+        <div><label>Session</label><input id="pf-session" placeholder="600"></div>
+        <div><label>Descriptions due</label><input id="pf-deadline" type="date"></div>
+        <div><label>Sign-up opens</label><input id="pf-su-open" type="date"></div>
+        <div><label>Sign-up closes</label><input id="pf-su-close" type="date"></div>
+        <div><label>Period starts</label><input id="pf-start" type="date"></div>
+        <div><label>Period ends</label><input id="pf-end" type="date"></div>
+        <div><label>Symposium</label><input id="pf-symposium" type="date"></div>
+        <div><button class="btn btn-primary btn-mini" id="pf-save">Save period</button> <button class="btn btn-ghost btn-mini" id="pf-cancel">Cancel</button></div>
+      </div>
+    </div>
+
+    <div class="pp-stats" id="stats"></div>
+
+    <div class="pp-toolbar">
+      <div class="pp-tabs" id="filter">
+        <button class="pp-tab active" data-f="all">All</button>
+        <button class="pp-tab" data-f="submitted">To review</button>
+        <button class="pp-tab" data-f="approved">Approved</button>
+        <button class="pp-tab" data-f="returned">Returned</button>
+        <button class="pp-tab" data-f="closed">Closed</button>
+      </div>
+      <input class="pp-search" id="search" type="search" placeholder="Search">
+      <span style="flex:1"></span>
+      <button class="btn btn-ghost btn-mini" id="btn-add">Add a project by hand</button>
+      <button class="btn btn-ghost btn-mini" id="btn-codes">Assign codes</button>
+      <button class="btn btn-ghost btn-mini" id="btn-bible">Export bible (CSV)</button>
+      <button class="btn btn-ghost btn-mini" id="btn-booklet">Booklet (print)</button>
+      <button class="btn btn-ghost btn-mini" id="btn-json">JSON</button>
+    </div>
+
+    <table class="pp-table" id="table">
+      <thead><tr><th>Code</th><th>Level</th><th>Title</th><th>Supervisor</th><th>Min-max</th><th>Where</th><th>Status</th><th></th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+
+    <h3 style="margin-top:36px">Committee members (allow-list)</h3>
+    <p class="pp-sub">Everyone here can sign in to this dashboard. Add the exact UM address.</p>
+    <div class="pp-toolbar"><input class="pp-search" id="admin-email" type="email" placeholder="name@maastrichtuniversity.nl"><button class="btn btn-ghost btn-mini" id="btn-admin-add">Add</button></div>
+    <div id="admins" class="pp-sub"></div>
+  </div>
+</main>
+
+<!-- edit modal -->
+<div class="pp-modal-bg" id="modal">
+  <div class="pp-modal">
+    <h3 id="m-title">Project</h3>
+    <div class="pp-form" id="m-form"></div>
+    <div id="m-msg"></div>
+    <div class="pp-toolbar"><button class="btn btn-primary" id="m-save">Save</button><button class="btn btn-ghost" id="m-close">Close</button><span style="flex:1"></span><button class="btn btn-danger btn-mini" id="m-delete">Delete</button></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/config.js"></script>
+<script src="assets/demo-data.js"></script>
+<script src="assets/supabase.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const notify = (kind, msg, where) => { (where || $("notice-area")).innerHTML = `<div class="notice ${kind}"><div>${msg}</div></div>`; };
+
+  let periods = [], period = null, projects = [], filter = "all", query = "", editing = null;
+
+  // ---------- auth (same shape as the tutoring dashboard) ----------
+  if (MSP.mode === "preview") {
+    notify("info", "<strong>Preview mode.</strong> The dashboard needs Supabase connected (see <code>app/assets/config.js</code>) to sign in.");
+  }
+  $("login-btn").addEventListener("click", async () => {
+    const email = $("login-email").value.trim();
+    if (!email) { notify("err", "Please enter your email.", $("login-msg")); return; }
+    try { await MSP.admin.signIn(email); notify("ok", "Check your inbox for a sign-in link, then return to this page.", $("login-msg")); }
+    catch (e) { notify("err", esc(e.message || "Could not send link."), $("login-msg")); }
+  });
+  $("signout").addEventListener("click", async (e) => { e.preventDefault(); await MSP.admin.signOut(); location.reload(); });
+
+  let ready = false, entering = false;
+  MSP.admin.onAuth(async (session, event) => {
+    if (!session || ready || entering) return;
+    if (event && event !== "INITIAL_SESSION" && event !== "SIGNED_IN") return;
+    entering = true;
+    try { await enter(session); } finally { entering = false; }
+  });
+
+  async function enter(session) {
+    const who = (session && session.user && session.user.email) || "";
+    let allowed = false;
+    try {
+      allowed = await MSP.admin.isAllowed();
+      if (!allowed) { const fresh = await MSP.admin.session(); if (fresh) allowed = await MSP.admin.isAllowed(); }
+    } catch (e) {
+      notify("err", "Could not check your access just now (" + esc(e.message || e) + "). This is not a rejection; reload the page in a moment.");
+      return;
+    }
+    if (!allowed) {
+      notify("err", "You are signed in as <code>" + esc(who) + "</code>, but that address is not on the committee allow-list. Ask a committee member to add exactly that address.");
+      $("signout").style.display = "inline";
+      return;
+    }
+    ready = true;
+    $("login").style.display = "none"; $("dash").style.display = "block"; $("signout").style.display = "inline";
+    await loadAll();
+  }
+
+  // ---------- data ----------
+  async function loadAll() {
+    periods = await MSP.getPeriods();
+    if (!period && periods.length) period = periods.find((p) => p.submissions_open) || periods[0];
+    if (period) period = periods.find((p) => p.id === period.id) || periods[0] || null;
+    $("period-select").innerHTML = periods.map((p) => `<option value="${esc(p.id)}" ${period && p.id === period.id ? "selected" : ""}>${esc(p.label)}</option>`).join("") || "<option>No period yet</option>";
+    $("sw-open").checked = !!(period && period.submissions_open);
+    $("sw-published").checked = !!(period && period.catalogue_published);
+    projects = period ? await MSP.admin.listProjects(period.id) : [];
+    renderStats(); renderRows();
+    try { const admins = await MSP.admin.listAdmins(); $("admins").textContent = admins.map((a) => a.email).join(", ") || "nobody yet"; } catch (e) { $("admins").textContent = ""; }
+  }
+  $("period-select").addEventListener("change", async (e) => { period = periods.find((p) => p.id === e.target.value); await loadAll(); });
+  $("btn-refresh").addEventListener("click", loadAll);
+  $("sw-open").addEventListener("change", async (e) => { if (!period) return; await MSP.admin.updatePeriod(period.id, { submissions_open: e.target.checked }); await loadAll(); });
+  $("sw-published").addEventListener("change", async (e) => { if (!period) return; await MSP.admin.updatePeriod(period.id, { catalogue_published: e.target.checked }); await loadAll(); });
+
+  // ---------- periods ----------
+  $("btn-new-period").addEventListener("click", () => { $("period-editor").hidden = false; });
+  $("pf-cancel").addEventListener("click", () => { $("period-editor").hidden = true; });
+  $("pf-save").addEventListener("click", async () => {
+    const v = (id) => $(id).value.trim() || null;
+    const f = { label: v("pf-label"), academic_year: v("pf-ay"), sap_year: v("pf-year"), session: v("pf-session"),
+      description_deadline: v("pf-deadline"), signup_opens: v("pf-su-open"), signup_closes: v("pf-su-close"),
+      period_start: v("pf-start"), period_end: v("pf-end"), symposium: v("pf-symposium") };
+    if (!f.label) { notify("err", "The period needs a label."); return; }
+    try { period = await MSP.admin.createPeriod(f); $("period-editor").hidden = true; await loadAll(); }
+    catch (e) { notify("err", esc(e.message || e)); }
+  });
+
+  // ---------- stats + table ----------
+  function renderStats() {
+    const by = {};
+    MSP.LEVELS.forEach((l) => by[l] = { approved: 0, submitted: 0, min: 0, max: 0 });
+    projects.forEach((p) => {
+      const d = by[p.level]; if (!d) return;
+      if (p.status === "approved") { d.approved++; d.min += Number(p.min_students) || 0; d.max += Number(p.max_students) || 0; }
+      if (p.status === "submitted") d.submitted++;
+    });
+    const cells = [[projects.filter((p) => p.status === "submitted").length, "to review"]];
+    MSP.LEVELS.forEach((l) => cells.push([by[l].approved, `${l}-level approved`], [`${by[l].min} to ${by[l].max}`, `${l}-level places (min to max)`]));
+    $("stats").innerHTML = cells.map(([n, l]) => `<div class="pp-stat"><div class="n">${esc(n)}</div><div class="l">${esc(l)}</div></div>`).join("");
+  }
+  function renderRows() {
+    const q = query.toLowerCase();
+    const list = projects.filter((p) => (filter === "all" || p.status === filter) &&
+      (!q || [p.code, p.title, p.supervisor, p.co_supervisor, p.slp_leaders].join(" ").toLowerCase().includes(q)));
+    $("rows").innerHTML = list.map((p) => `<tr>
+      <td>${esc(p.code || "")}</td><td>${esc(p.level)}${p.slp_leaders ? " SLP" : ""}${p.external ? " ext" : ""}</td>
+      <td><a href="#" data-edit="${esc(p.id)}">${esc(p.title)}</a></td>
+      <td>${esc(p.supervisor)}${p.co_supervisor ? "<br><small>" + esc(p.co_supervisor) + "</small>" : ""}</td>
+      <td>${esc(p.min_students)}-${esc(p.max_students)}</td><td><small>${esc(p.location || "")}</small></td>
+      <td><span class="pp-status ${esc(p.status)}">${esc(p.status)}</span></td>
+      <td><div class="pp-acts">
+        ${p.status !== "approved" ? `<button data-act="approved" data-id="${esc(p.id)}">Approve</button>` : ""}
+        ${p.status !== "returned" ? `<button data-act="returned" data-id="${esc(p.id)}">Return</button>` : ""}
+        ${p.status !== "closed" ? `<button data-act="closed" data-id="${esc(p.id)}">Close</button>` : `<button data-act="submitted" data-id="${esc(p.id)}">Reopen</button>`}
+      </div></td></tr>`).join("") || '<tr><td colspan="8" class="empty-state">Nothing here.</td></tr>';
+    $("rows").querySelectorAll("[data-act]").forEach((b) => b.addEventListener("click", async () => {
+      let note;
+      if (b.dataset.act === "returned") { note = prompt("What should the supervisor change? (sent with the project)"); if (note === null) return; }
+      try { await MSP.admin.updateProject(b.dataset.id, Object.assign({ status: b.dataset.act }, note != null ? { committee_note: note } : {})); await loadAll(); }
+      catch (e) { notify("err", esc(e.message || e)); }
+    }));
+    $("rows").querySelectorAll("[data-edit]").forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); openEdit(projects.find((p) => p.id === a.dataset.edit)); }));
+  }
+  $("filter").querySelectorAll(".pp-tab").forEach((t) => t.addEventListener("click", () => {
+    $("filter").querySelectorAll(".pp-tab").forEach((x) => x.classList.remove("active")); t.classList.add("active"); filter = t.dataset.f; renderRows();
+  }));
+  $("search").addEventListener("input", (e) => { query = e.target.value; renderRows(); });
+
+  // ---------- codes + exports ----------
+  $("btn-codes").addEventListener("click", async () => {
+    const next = MSP.nextCodes(projects);
+    const todo = projects.filter((p) => !p.code && p.status === "approved").sort((a, b) => a.created_at.localeCompare(b.created_at));
+    if (!todo.length) { notify("info", "Every approved project already has a code."); return; }
+    if (!confirm(`Assign codes to ${todo.length} approved project(s) without one?`)) return;
+    try { for (const p of todo) await MSP.admin.updateProject(p.id, { code: next(p) }); await loadAll(); }
+    catch (e) { notify("err", esc(e.message || e)); }
+  });
+  $("btn-bible").addEventListener("click", () => {
+    const list = projects.filter((p) => p.status === "approved" || p.status === "closed");
+    MSP.download(`bible ${period ? period.label : ""}.csv`, MSP.bibleCSV(list), "text/csv;charset=utf-8");
+  });
+  $("btn-booklet").addEventListener("click", () => {
+    const w = window.open("", "_blank");
+    w.document.write(MSP.bookletHTML(projects.filter((p) => p.status === "approved"), period));
+    w.document.close();
+  });
+  $("btn-json").addEventListener("click", () => MSP.download(`projects ${period ? period.label : ""}.json`, JSON.stringify(projects, null, 2), "application/json"));
+
+  // ---------- admins ----------
+  $("btn-admin-add").addEventListener("click", async () => {
+    const email = $("admin-email").value.trim();
+    if (!email) return;
+    try { await MSP.admin.addAdmin(email); $("admin-email").value = ""; await loadAll(); } catch (e) { notify("err", esc(e.message || e)); }
+  });
+
+  // ---------- edit modal ----------
+  const FIELDS = [
+    ["code", "Code", "text"], ["level", "Level", "select", MSP.LEVELS], ["status", "Status", "select", ["submitted", "approved", "returned", "closed"]],
+    ["title", "Title", "text"], ["slp_leaders", "Student leaders (SLP)", "text"],
+    ["supervisor", "Supervisor", "text"], ["supervisor_email", "Supervisor email", "text"],
+    ["co_supervisor", "Co-supervisor", "text"], ["co_supervisor_email", "Co-supervisor email", "text"],
+    ["external", "External", "check"], ["organisation", "Organisation", "text"],
+    ["min_students", "Min students", "number"], ["max_students", "Max students", "number"],
+    ["location", "Location", "select", MSP.LOCATIONS.map((l) => l[0])],
+    ["labs", "Labs (comma separated)", "list"], ["instruments", "Instruments (comma separated)", "list"],
+    ["facilities", "Facilities (JSON)", "json"],
+    ["safety", "Safety", "text"], ["budget_note", "Consumables", "text"], ["contact_note", "Contact", "text"],
+    ["description", "Description", "textarea"], ["references", "References", "textarea"],
+    ["committee_note", "Committee note (shown to the supervisor when returned)", "textarea"],
+  ];
+  function openEdit(p) {
+    editing = p || {};
+    $("m-title").textContent = p ? `${p.code ? p.code + ". " : ""}${p.title}` : "New project";
+    $("m-form").innerHTML = FIELDS.map(([k, l, t, opts]) => {
+      const v = editing[k];
+      if (t === "select") return `<div class="field"><label>${l}</label><select id="f-${k}">${opts.map((o) => `<option ${o === v ? "selected" : ""}>${esc(o)}</option>`).join("")}</select></div>`;
+      if (t === "check") return `<div class="field"><label><input type="checkbox" id="f-${k}" ${v ? "checked" : ""}> ${l}</label></div>`;
+      if (t === "textarea") return `<div class="field"><label>${l}</label><textarea id="f-${k}">${esc(v || "")}</textarea></div>`;
+      if (t === "list") return `<div class="field"><label>${l}</label><input type="text" id="f-${k}" value="${esc((v || []).join(", "))}"></div>`;
+      if (t === "json") return `<div class="field"><label>${l}</label><input type="text" id="f-${k}" value="${esc(JSON.stringify(v || {}))}"></div>`;
+      return `<div class="field"><label>${l}</label><input type="${t}" id="f-${k}" value="${esc(v == null ? "" : v)}"></div>`;
+    }).join("");
+    $("m-delete").style.display = p ? "inline-block" : "none";
+    $("m-msg").innerHTML = "";
+    $("modal").classList.add("open");
+  }
+  function readEdit() {
+    const out = {};
+    FIELDS.forEach(([k, , t]) => {
+      const el = $("f-" + k);
+      if (t === "check") out[k] = el.checked;
+      else if (t === "number") out[k] = Number(el.value) || null;
+      else if (t === "list") out[k] = el.value.split(",").map((s) => s.trim()).filter(Boolean);
+      else if (t === "json") { try { out[k] = JSON.parse(el.value || "{}"); } catch (e) { throw new Error("Facilities must be valid JSON"); } }
+      else out[k] = el.value.trim() || null;
+    });
+    if (!out.title) throw new Error("A title is required");
+    if (out.code === "") out.code = null;
+    return out;
+  }
+  $("m-close").addEventListener("click", () => $("modal").classList.remove("open"));
+  $("m-save").addEventListener("click", async () => {
+    try {
+      const patch = readEdit();
+      if (editing.id) await MSP.admin.updateProject(editing.id, patch);
+      else await MSP.admin.createProject(Object.assign({ period_id: period.id }, patch));
+      $("modal").classList.remove("open"); await loadAll();
+    } catch (e) { notify("err", esc(e.message || e), $("m-msg")); }
+  });
+  $("m-delete").addEventListener("click", async () => {
+    if (!editing.id || !confirm("Delete this project for good? Closing it is usually better.")) return;
+    try { await MSP.admin.deleteProject(editing.id); $("modal").classList.remove("open"); await loadAll(); }
+    catch (e) { notify("err", esc(e.message || e), $("m-msg")); }
+  });
+  $("btn-add").addEventListener("click", () => { if (!period) { notify("err", "Create a period first."); return; } openEdit(null); });
+})();
+</script>
+</body>
+</html>

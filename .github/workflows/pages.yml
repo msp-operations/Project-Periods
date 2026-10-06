@@ -1,0 +1,55 @@
+name: Deploy to GitHub Pages
+
+# Publishes index.html + app/ to GitHub Pages, the same way the tutoring tool
+# deploys. NOTE: the repo is private while the tool is being built, and
+# GitHub Pages on the free plan needs a public repo. Before making it public,
+# confirm the repo holds no personal data (it must never hold student lists;
+# see .gitignore). The workflow copies only the site, never the allocator or
+# any data folder.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    # Skipped entirely while the repository is private, so nobody gets a failed
+    # run in their inbox on every push. Make the repo public and the next push deploys.
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Pages (auto-enable)
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - name: Assemble site (root redirect + app)
+        run: |
+          mkdir -p _site
+          cp index.html _site/index.html
+          cp -r app _site/app
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

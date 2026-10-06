@@ -1,0 +1,146 @@
+<!doctype html>
+<!--
+  index.html - the project catalogue (what used to be the Word booklet).
+  Static; connect Supabase in app/assets/config.js to show the real projects.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project Periods - Maastricht Science Programme</title>
+<meta name="description" content="Research projects offered in the MSP project periods (P3 and P6): the catalogue, how to offer a project, and the Project Committee's dashboard.">
+<link rel="icon" type="image/png" href="assets/img/msp-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<link rel="stylesheet" href="assets/projects.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="index.html" class="logos" aria-label="Maastricht University, Faculty of Science and Engineering - home">
+      <img class="um-logo" src="assets/img/um-fse-logo.png" alt="Maastricht University - Faculty of Science and Engineering">
+      <span class="divider"></span>
+      <span class="lockup-text">Project Periods<small>Maastricht Science Programme</small></span>
+    </a>
+    <nav>
+      <a href="index.html" class="active" aria-current="page">Catalogue</a>
+      <a href="submit.html">Offer a project</a>
+      <a href="admin.html">Committee login</a>
+    </nav>
+  </div>
+</header>
+
+<section class="board" aria-label="Project period">
+  <div class="board-inner">
+    <div class="board-head">
+      <div>
+        <div class="board-eyebrow">Maastricht Science Programme · Project Period · <span id="period-label"></span></div>
+        <h1>Research projects on offer</h1>
+        <p class="sub">Three weeks of supervised research at the end of each semester. Browse the projects for the coming period, note the codes of your top five, and submit your choices through the sign-up form the committee announces on Canvas.</p>
+        <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap">
+          <a href="submit.html" class="btn btn-primary">Offer a project (staff)</a>
+        </div>
+      </div>
+      <img class="board-emblem" src="assets/img/msp-logo.png" alt="">
+    </div>
+    <div class="board-stats" id="stats" aria-live="polite"></div>
+  </div>
+</section>
+
+<main class="pp">
+  <div id="notice-area"></div>
+  <div class="pp-head">
+    <div>
+      <h2>Catalogue</h2>
+      <p class="pp-sub" id="count-line"></p>
+    </div>
+    <div class="pp-tabs" id="tabs">
+      <button class="pp-tab active" data-level="all">All levels</button>
+      <button class="pp-tab" data-level="1000">1000</button>
+      <button class="pp-tab" data-level="2000">2000</button>
+      <button class="pp-tab" data-level="3000">3000</button>
+      <input class="pp-search" id="search" type="search" placeholder="Search title, supervisor, topic">
+    </div>
+  </div>
+  <div class="pp-grid" id="grid"></div>
+  <div class="pp-footer">Questions about the project period go to <a id="contact" href="#"></a>. The committee publishes the catalogue here once the descriptions are in; sign-up and allocation follow the dates announced on Canvas.</div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/config.js"></script>
+<script src="assets/demo-data.js"></script>
+<script src="assets/supabase.js"></script>
+<script>
+(async function () {
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  $("contact").textContent = MSP.config.CONTACT_EMAIL;
+  $("contact").href = "mailto:" + MSP.config.CONTACT_EMAIL;
+
+  if (MSP.mode === "preview") {
+    $("notice-area").innerHTML = '<div class="notice info"><div><strong>Preview.</strong> Sample projects are shown because Supabase is not connected yet (see <code>app/assets/config.js</code>).</div></div>';
+  }
+
+  let projects = [], level = "all", query = "";
+  try {
+    const periods = await MSP.getPeriods();
+    const published = periods.filter((p) => p.catalogue_published);
+    const current = published[0] || null;
+    $("period-label").textContent = current ? current.label : "no catalogue published";
+    projects = current ? await MSP.getCatalogue(current.id) : [];
+  } catch (e) {
+    $("notice-area").innerHTML = '<div class="notice err"><div>Could not load the catalogue: ' + esc(e.message || e) + '</div></div>';
+  }
+
+  function stats() {
+    const by = { "1000": 0, "2000": 0, "3000": 0 };
+    let cap = 0;
+    projects.forEach((p) => { by[p.level] = (by[p.level] || 0) + 1; cap += Number(p.max_students) || 0; });
+    $("stats").innerHTML = [["Projects", projects.length], ["1000-level", by["1000"]], ["2000-level", by["2000"]], ["3000-level", by["3000"]], ["Places (sum of max)", cap]]
+      .map(([l, n]) => `<div class="bstat"><div class="num">${n}</div><div class="cap">${l}</div></div>`).join("");
+  }
+
+  function render() {
+    const q = query.trim().toLowerCase();
+    const list = projects.filter((p) => (level === "all" || p.level === level) &&
+      (!q || [p.title, p.supervisor, p.co_supervisor, p.description, p.code].join(" ").toLowerCase().includes(q)));
+    $("count-line").textContent = list.length + " of " + projects.length + " projects";
+    if (!list.length) { $("grid").innerHTML = '<div class="empty-state">No projects match.</div>'; return; }
+    $("grid").innerHTML = list.map((p) => `
+      <article class="pp-card">
+        <div class="pp-badges">
+          <span class="pp-badge l${esc(p.level)}">${esc(p.level)}-level</span>
+          ${p.slp_leaders ? '<span class="pp-badge slp">Student-led</span>' : ""}
+          ${p.external ? '<span class="pp-badge ext">External</span>' : ""}
+          <span class="pp-code">#${esc(p.code || "")}</span>
+        </div>
+        <h3>${esc(p.title)}</h3>
+        <div class="pp-meta">
+          <span>${esc([p.supervisor, p.co_supervisor].filter(Boolean).join(" + "))}</span>
+          <span>${esc(p.min_students)} to ${esc(p.max_students)} students</span>
+          <span>${esc(p.location || "")}</span>
+        </div>
+        <div class="pp-desc" id="d-${esc(p.id)}">${esc(p.description || "")}</div>
+        ${p.references ? `<div class="pp-refs" hidden id="r-${esc(p.id)}">${esc(p.references)}</div>` : ""}
+        <button class="pp-more" data-id="${esc(p.id)}">Read more</button>
+      </article>`).join("");
+    $("grid").querySelectorAll(".pp-more").forEach((b) => b.addEventListener("click", () => {
+      const d = $("d-" + b.dataset.id), r = $("r-" + b.dataset.id);
+      const open = d.classList.toggle("open");
+      if (r) r.hidden = !open;
+      b.textContent = open ? "Show less" : "Read more";
+    }));
+  }
+
+  $("tabs").querySelectorAll(".pp-tab").forEach((t) => t.addEventListener("click", () => {
+    $("tabs").querySelectorAll(".pp-tab").forEach((x) => x.classList.remove("active"));
+    t.classList.add("active"); level = t.dataset.level; render();
+  }));
+  $("search").addEventListener("input", (e) => { query = e.target.value; render(); });
+  stats(); render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+# Never commit data. The repo holds code only; every real input and output
+# (bibles, Qualtrics exports, target groups, allocations) stays on the office
+# drive. The allocator's demo generates synthetic data into demo_out/.
+*.xlsx
+*.xlsm
+*.csv
+*.json
+!app/**/*.json
+data/
+demo_out/
+out/
+output/
+
+__pycache__/
+*.pyc
+.pytest_cache/
+*.log
+.DS_Store
+Thumbs.db
+
+# Internal working notes, not part of the tool.
+CLAUDE.md
