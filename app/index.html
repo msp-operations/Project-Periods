@@ -24,28 +24,29 @@
   <h1 class="c-title">Dashboard</h1>
   <div class="c-panel">
     <div class="c-notice" id="notice">Loading the current period&hellip;</div>
-    <div class="c-stats" id="stats"></div>
 
     <div class="c-sections">
       <section class="c-sec">
-        <h2><i class="fa-solid fa-book-open"></i> Catalogue</h2>
+        <h2><i class="fa-solid fa-book-open"></i> Projects</h2>
         <ul>
-          <li><a href="projects.html">Projects</a></li>
-          <li><a href="projects.html?level=1000">1000-level</a></li>
-          <li><a href="projects.html?level=2000">2000-level</a></li>
-          <li><a href="projects.html?level=3000">3000-level</a></li>
+          <li><a href="projects.html">Projects <span id="n-all"></span></a></li>
+          <li><a href="projects.html?level=1000">1000-level <span id="n-1000"></span></a></li>
+          <li><a href="projects.html?level=2000">2000-level <span id="n-2000"></span></a></li>
+          <li><a href="projects.html?level=3000">3000-level <span id="n-3000"></span></a></li>
         </ul>
       </section>
       <section class="c-sec">
         <h2><i class="fa-solid fa-pen-to-square"></i> Forms</h2>
         <ul>
-          <li><a href="submit.html">Offer a project</a> <small>(staff and student leaders)</small></li>
-          <li><a href="submit.html#guidelines">What a description needs</a></li>
+          <li><a href="submit.html">Offer a project</a></li>
+          <li><a href="submit.html#guidelines">Description guidelines</a></li>
         </ul>
       </section>
       <section class="c-sec">
-        <h2><i class="fa-solid fa-calendar-days"></i> Dates</h2>
-        <ul id="dates"><li><small>No period published.</small></li></ul>
+        <h2><i class="fa-solid fa-calendar-days"></i> Period</h2>
+        <ul id="period-list">
+          <li><small>No period published.</small></li>
+        </ul>
       </section>
       <section class="c-sec">
         <h2><i class="fa-solid fa-user-shield"></i> Committee</h2>
@@ -62,15 +63,26 @@
       <section class="c-sec">
         <h2><i class="fa-solid fa-circle-info"></i> Information</h2>
         <ul>
-          <li>Three weeks of supervised research in P3 (January) and P6 (June), 5 ECTS.</li>
-          <li>Students list a top five from this catalogue; the committee allocates.</li>
-          <li>Every project runs only if it reaches its minimum number of students.</li>
+          <li class="c-collapse"><a class="c-toggle"><i class="fa-solid fa-caret-right"></i> About the project period</a>
+            <ul class="c-sub">
+              <li>Three weeks of supervised research in P3 (January) and P6 (June), 5 ECTS.</li>
+              <li>Students list a top five from the catalogue; the committee allocates.</li>
+              <li>A project runs only if it reaches its minimum number of students.</li>
+            </ul>
+          </li>
+          <li class="c-collapse"><a class="c-toggle"><i class="fa-solid fa-caret-right"></i> How to offer a project</a>
+            <ul class="c-sub">
+              <li>One page of description plus the lab and group-size details, through the <a href="submit.html">form</a>.</li>
+              <li>The committee reviews it, assigns a code and publishes the catalogue.</li>
+              <li>Meet the group in the period before; budget table a month ahead; grades within five days after.</li>
+            </ul>
+          </li>
         </ul>
       </section>
       <section class="c-sec">
         <h2><i class="fa-solid fa-circle-question"></i> Support</h2>
         <ul>
-          <li><a id="contact" href="#">Contact the Project Committee</a></li>
+          <li><a id="contact" href="#">Contacts</a></li>
           <li><a id="help" href="#">Need help?</a></li>
         </ul>
       </section>
@@ -92,32 +104,48 @@
   MSPChrome.render({ active: "dashboard" });
   $("contact").href = $("help").href = "mailto:" + MSP.config.CONTACT_EMAIL;
 
+  // caret toggles (the Collent "Settings" pattern)
+  function wireToggles(root) {
+    (root || document).querySelectorAll(".c-toggle").forEach((t) => t.addEventListener("click", (e) => {
+      e.preventDefault();
+      t.closest(".c-collapse").classList.toggle("open");
+    }));
+  }
+  wireToggles();
+
   const fmt = (d) => d ? new Date(d + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "";
   try {
     const periods = await MSP.getPeriods();
     const open = periods.find((p) => p.submissions_open);
     const pub = periods.find((p) => p.catalogue_published);
-    const current = pub || open || periods[0];
     const lines = [];
-    if (MSP.mode === "preview") lines.push("<strong>Preview.</strong> Sample data is shown because Supabase is not connected yet (see <code>app/assets/config.js</code>).");
-    if (open) lines.push(`Project descriptions for <strong>${esc(open.label)}</strong> are being collected${open.description_deadline ? " until <strong>" + fmt(open.description_deadline) + "</strong>" : ""}: staff and student leaders can <a href="submit.html">offer a project</a>.`);
-    if (pub) lines.push(`The catalogue for <strong>${esc(pub.label)}</strong> is published. Sign-up ${pub.signup_opens ? "opens " + fmt(pub.signup_opens) : "dates"} ${pub.signup_closes ? "and closes " + fmt(pub.signup_closes) : "follow on Canvas"}.`);
-    if (!open && !pub) lines.push("No project period is open at the moment. The committee opens the next round here and on Canvas.");
+    if (open) lines.push(`Project descriptions for <strong>${esc(open.label)}</strong> are being collected${open.description_deadline ? " until " + fmt(open.description_deadline) : ""}. Staff and student leaders can <a href="submit.html">offer a project</a>.`);
+    if (pub && pub !== open) lines.push(`The catalogue for <strong>${esc(pub.label)}</strong> is published.`);
+    else if (pub) lines.push(`The catalogue for ${esc(pub.label)} is published.`);
+    if (!open && !pub) lines.push("No project period is open at the moment. The committee announces the next round here and on Canvas.");
+    if (MSP.mode === "preview") lines.push("<span style='font-weight:400'>Preview: sample data, Supabase not connected yet (see <code>app/assets/config.js</code>).</span>");
     $("notice").innerHTML = lines.join("<br>");
 
-    if (current) {
-      const d = [["Descriptions due", current.description_deadline], ["Sign-up opens", current.signup_opens], ["Sign-up closes", current.signup_closes],
-        ["Project period", current.period_start && current.period_end ? fmt(current.period_start) + " to " + fmt(current.period_end) : current.period_start], ["Symposium", current.symposium]]
-        .filter(([, v]) => v).map(([l, v]) => `<li>${esc(l)}: <strong>${esc(typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) ? fmt(v) : v)}</strong></li>`);
-      $("dates").innerHTML = (d.length ? `<li><small>${esc(current.label)}</small></li>` + d.join("") : "<li><small>Dates follow on Canvas.</small></li>");
+    // the period section: one collapsible entry per period that is open or published
+    const shown = periods.filter((p) => p.submissions_open || p.catalogue_published);
+    if (shown.length) {
+      $("period-list").innerHTML = shown.map((p) => {
+        const dates = [["Descriptions due", fmt(p.description_deadline)], ["Sign-up", p.signup_opens ? fmt(p.signup_opens) + (p.signup_closes ? " to " + fmt(p.signup_closes) : "") : ""],
+          ["Project period", p.period_start ? fmt(p.period_start) + (p.period_end ? " to " + fmt(p.period_end) : "") : ""], ["Symposium", fmt(p.symposium)],
+          ["State", [p.submissions_open ? "collecting descriptions" : "", p.catalogue_published ? "catalogue published" : ""].filter(Boolean).join(", ")]]
+          .filter(([, v]) => v);
+        return `<li class="c-collapse"><a class="c-toggle"><i class="fa-solid fa-caret-right"></i> ${esc(p.label)}</a>
+          <ul class="c-sub">${dates.map(([l, v]) => `<li>${esc(l)}: ${esc(v)}</li>`).join("")}</ul></li>`;
+      }).join("");
+      wireToggles($("period-list"));
     }
+
     if (pub) {
       const projects = await MSP.getCatalogue(pub.id);
       const by = { "1000": 0, "2000": 0, "3000": 0 };
-      let cap = 0;
-      projects.forEach((p) => { by[p.level] = (by[p.level] || 0) + 1; cap += Number(p.max_students) || 0; });
-      $("stats").innerHTML = [["Projects", projects.length], ["1000-level", by["1000"]], ["2000-level", by["2000"]], ["3000-level", by["3000"]], ["Places (sum of max)", cap]]
-        .map(([l, n]) => `<div class="c-stat"><b>${n}</b><span>${esc(l)}</span></div>`).join("");
+      projects.forEach((p) => { by[p.level] = (by[p.level] || 0) + 1; });
+      $("n-all").textContent = `(${projects.length})`;
+      ["1000", "2000", "3000"].forEach((l) => $("n-" + l).textContent = `(${by[l]})`);
     }
   } catch (e) {
     $("notice").className = "c-notice bad";

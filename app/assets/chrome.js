@@ -12,7 +12,7 @@
     const footer = document.getElementById("chrome-footer");
     if (header) header.innerHTML = `
       <a href="index.html" class="c-logo" aria-label="Project Periods home">
-        <span class="c-um">UM</span>
+        <img class="c-um-mark" src="assets/img/um-mark-white.png" alt="Maastricht University">
         ${MARK("white")}
         <span class="c-word">Project Periods</span>
       </a>

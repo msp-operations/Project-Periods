@@ -44,8 +44,8 @@ code{font-size:12.5px;background:#eef1f4;padding:1px 4px;border-radius:3px}
 .c-header{background:var(--c-bar);color:#fff;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:0 20px;height:76px}
 .c-logo{display:flex;align-items:center;gap:12px;color:#fff;text-decoration:none}
 .c-logo:hover{text-decoration:none;color:#fff}
-.c-um{display:inline-block;border:2px solid #fff;border-radius:3px;padding:2px 5px;font-size:11px;font-weight:700;letter-spacing:.04em;line-height:1.1;text-align:center}
-.c-mark{width:54px;height:54px;display:block}
+.c-um-mark{height:40px;width:auto;display:block}
+.c-mark{width:52px;height:52px;display:block}
 .c-word{font-size:38px;font-weight:700;letter-spacing:-.01em;line-height:1}
 .c-word small{display:block;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;opacity:.85;margin-top:3px}
 .c-center{text-align:center;font-size:16px;font-weight:600;line-height:1.35}
@@ -59,20 +59,30 @@ code{font-size:12.5px;background:#eef1f4;padding:1px 4px;border-radius:3px}
 /* ---- page ------------------------------------------------------------------ */
 .c-page{padding:34px 16px 30px;max-width:1280px;margin:0 auto}
 .c-title{font-size:28px;font-weight:500;margin:0 0 16px}
-.c-panel{background:var(--c-panel);border-radius:var(--c-radius);padding:24px 28px}
-.c-panel.white{background:#fff;border:1px solid var(--c-panel-border);padding:0}
-.c-notice{background:var(--c-notice-bg);border:1px solid var(--c-notice-border);border-radius:3px;padding:12px 16px;font-weight:600;color:var(--c-navy);margin:0 0 22px}
+.c-panel{background:var(--c-panel);border-radius:8px;padding:28px 30px 34px}
+.c-panel.white{background:#fff;border:1px solid var(--c-panel-border);padding:0;border-radius:var(--c-radius)}
+.c-notice{background:var(--c-notice-bg);border:1px solid var(--c-notice-border);border-radius:3px;padding:12px 16px;font-weight:600;font-size:13.5px;color:var(--c-navy);margin:0 0 28px}
 .c-notice.plain{font-weight:400}
 .c-notice.bad{background:var(--c-bad-bg);border-color:var(--c-bad)}
 .c-notice.ok{background:var(--c-ok-bg);border-color:var(--c-ok)}
 .c-notice.warn{background:var(--c-warn-bg);border-color:var(--c-warn)}
-.c-sections{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:22px 20px}
-.c-sec h2{display:flex;align-items:center;gap:12px;font-size:15px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--c-navy)}
-.c-sec h2 i{font-size:22px;width:28px;text-align:center;color:var(--c-navy)}
-.c-sec ul{margin:8px 0 0 40px;padding:0;list-style:disc}
-.c-sec li{margin:3px 0;font-size:14px}
+.c-sections{display:grid;grid-template-columns:repeat(4,1fr);gap:34px 24px}
+@media (max-width:1000px){.c-sections{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.c-sections{grid-template-columns:1fr}}
+.c-sec h2{display:flex;align-items:center;gap:12px;font-size:15px;font-weight:700;letter-spacing:.01em;text-transform:uppercase;color:var(--c-navy)}
+.c-sec h2 i{font-size:26px;width:30px;text-align:center;color:var(--c-navy)}
+.c-sec ul{margin:8px 0 0 42px;padding:0;list-style:disc}
+.c-sec li{margin:4px 0;font-size:13.5px}
 .c-sec li small{color:var(--c-muted)}
-.c-divider{border:0;border-top:1px solid #c9d1d8;margin:24px 0}
+/* collapsible entries, the Collent "Settings" pattern: caret + label, children hidden until clicked */
+.c-sec li.c-collapse{list-style:none;margin-left:-16px}
+.c-toggle{font-weight:600;color:var(--c-link);display:inline-flex;align-items:center;gap:5px;cursor:pointer}
+.c-toggle i{width:10px;font-size:13px;transition:transform .12s}
+.c-collapse.open .c-toggle i{transform:rotate(90deg)}
+.c-sub{display:none;margin:4px 0 6px 16px;padding:0;list-style:disc}
+.c-collapse.open .c-sub{display:block}
+.c-sub li{font-size:13px;color:var(--c-text)}
+.c-divider{border:0;border-top:1px solid #c9d1d8;margin:30px 0 28px}
 .c-stats{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 20px}
 .c-stat{background:#fff;border:1px solid var(--c-panel-border);border-radius:3px;padding:8px 14px;min-width:120px}
 .c-stat b{display:block;font-size:20px;color:var(--c-navy);line-height:1.1}
