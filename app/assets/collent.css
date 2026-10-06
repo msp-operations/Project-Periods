@@ -7,36 +7,41 @@
    sections and link lists, filterable list tables with action icons, and a
    plain footer with the version line. Font: Open Sans. Icons: Font Awesome.
    ========================================================================== */
+/* Tokens measured from Collent itself (its :root and screenshots, 6 Oct 2026):
+   Bootstrap 4 defaults with --primary #004EA2, --collent-blue #005F8C,
+   --info (UM navy) #001C3D, --secondary #BBBBBB, system font stack. */
 :root{
-  --c-bar:#1f5e8c;          /* header bar */
-  --c-bar-dark:#174a70;
-  --c-navy:#0c2d4c;         /* titles, section headings, body text */
-  --c-text:#1d2b3a;
-  --c-muted:#5c6b7a;
-  --c-link:#1c7cb6;
-  --c-link-hover:#135b87;
-  --c-panel:#e9edf0;        /* the grey dashboard panel */
-  --c-panel-border:#d6dce2;
+  --c-bar:#005f8c;          /* header bar: --collent-blue */
+  --c-bar-dark:#004a6e;
+  --c-navy:#001c3d;         /* UM navy: section icons, notice text */
+  --c-text:#212529;         /* Bootstrap body text: titles, headings, cells */
+  --c-muted:#6c757d;
+  --c-link:#004ea2;         /* --primary */
+  --c-link-hover:#00356f;
+  --c-panel:#e9ecef;        /* the grey dashboard panel */
+  --c-panel-border:#dee2e6;
   --c-white:#ffffff;
-  --c-head:#e6eaee;         /* table header + tab bar */
-  --c-row-alt:#f4f6f8;
-  --c-line:#d8dee4;
-  --c-notice-bg:#dbedf6;
-  --c-notice-border:#2f6f9f;
-  --c-btn:#d3d9df;
-  --c-btn-text:#1d2b3a;
-  --c-ok:#2e7d4f; --c-ok-bg:#e4f3ea;
-  --c-warn:#8a5d00; --c-warn-bg:#fff4dc;
-  --c-bad:#b23a2a; --c-bad-bg:#fbe9e6;
-  --c-radius:6px;
-  --c-font:'Open Sans',"Segoe UI",Arial,sans-serif;
+  --c-head:#f2f2f2;         /* table header + alternate rows */
+  --c-tabbar:#f7f7f7;
+  --c-row-alt:#f2f2f2;
+  --c-line:#dee2e6;
+  --c-notice-bg:#d1ecf1;    /* Bootstrap alert-info with a navy border */
+  --c-notice-border:#3d587a;
+  --c-btn:#6c757d;          /* Bootstrap btn-secondary: grey with white text */
+  --c-btn-text:#ffffff;
+  --c-ok:#28a745; --c-ok-bg:#d4edda;
+  --c-warn:#856404; --c-warn-bg:#fff3cd;
+  --c-bad:#ee3322; --c-bad-bg:#f8d7da;
+  --c-radius:4px;
+  --c-font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{font-family:var(--c-font);font-size:14px;line-height:1.5;color:var(--c-text);background:var(--c-white);-webkit-font-smoothing:antialiased}
+body.noscroll{overflow:hidden}
 a{color:var(--c-link);text-decoration:none}
 a:hover{color:var(--c-link-hover);text-decoration:underline}
-h1,h2,h3{margin:0;font-weight:600;color:var(--c-navy)}
+h1,h2,h3{margin:0;font-weight:600;color:var(--c-text)}
 code{font-size:12.5px;background:#eef1f4;padding:1px 4px;border-radius:3px}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
 
@@ -50,9 +55,23 @@ code{font-size:12.5px;background:#eef1f4;padding:1px 4px;border-radius:3px}
 .c-word small{display:block;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;opacity:.85;margin-top:3px}
 .c-center{text-align:center;font-size:16px;font-weight:600;line-height:1.35}
 .c-nav{display:flex;gap:26px;font-size:14.5px;font-weight:600}
-.c-nav a{color:#fff;display:inline-flex;align-items:center;gap:7px}
+.c-nav a{color:#fff;display:inline-flex;align-items:center;gap:7px;cursor:pointer}
 .c-nav a:hover{text-decoration:underline;color:#fff}
 .c-nav i{font-size:15px}
+
+/* ---- slide-in panes (Collent's Dashboard pane and Need help? pane) --------------- */
+.c-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;z-index:150}
+.c-overlay.open{display:block}
+.c-pane{position:fixed;top:0;right:0;height:100%;width:min(480px,100%);background:#fff;box-shadow:-6px 0 24px rgba(0,0,0,.25);transform:translateX(102%);transition:transform .18s ease-out;z-index:200;overflow:auto;display:flex;flex-direction:column}
+.c-pane.open{transform:none}
+.c-pane-head{background:var(--c-bar);color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:16px}
+.c-pane-head button{background:none;border:0;color:#fff;font-size:24px;line-height:1;cursor:pointer}
+.c-pane-body{padding:20px 18px 30px}
+.c-pane .c-sections{grid-template-columns:1fr 1fr;gap:22px 16px}
+.c-pane .c-sec h2{font-size:13.5px}
+.c-pane .c-sec h2 i{font-size:22px;width:26px}
+.c-pane .c-hint{margin-bottom:12px}
+.c-kbd{display:inline-block;border:1px solid #c9d0d6;border-bottom-width:2px;border-radius:3px;padding:0 5px;font-size:11px;font-family:inherit;background:#f7f7f7;color:var(--c-muted)}
 @media (max-width:900px){.c-center{display:none}.c-word{font-size:28px}}
 @media (max-width:600px){.c-header{height:auto;padding:12px 14px;flex-wrap:wrap}.c-nav{gap:16px}}
 
@@ -69,7 +88,7 @@ code{font-size:12.5px;background:#eef1f4;padding:1px 4px;border-radius:3px}
 .c-sections{display:grid;grid-template-columns:repeat(4,1fr);gap:34px 24px}
 @media (max-width:1000px){.c-sections{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:560px){.c-sections{grid-template-columns:1fr}}
-.c-sec h2{display:flex;align-items:center;gap:12px;font-size:15px;font-weight:700;letter-spacing:.01em;text-transform:uppercase;color:var(--c-navy)}
+.c-sec h2{display:flex;align-items:center;gap:12px;font-size:15px;font-weight:700;letter-spacing:.01em;text-transform:uppercase;color:var(--c-text)}
 .c-sec h2 i{font-size:26px;width:30px;text-align:center;color:var(--c-navy)}
 .c-sec ul{margin:8px 0 0 42px;padding:0;list-style:disc}
 .c-sec li{margin:4px 0;font-size:13.5px}
@@ -89,25 +108,25 @@ code{font-size:12.5px;background:#eef1f4;padding:1px 4px;border-radius:3px}
 .c-stat span{font-size:12px;color:var(--c-muted)}
 
 /* ---- tab bar + list tables ----------------------------------------------------- */
-.c-tabbar{background:var(--c-head);border-bottom:1px solid var(--c-line);padding:10px 16px;display:flex;gap:18px;align-items:center;border-radius:var(--c-radius) var(--c-radius) 0 0}
+.c-tabbar{background:var(--c-tabbar);border-bottom:1px solid var(--c-line);padding:10px 16px;display:flex;gap:18px;align-items:center;border-radius:var(--c-radius) var(--c-radius) 0 0}
 .c-tabbar a{font-size:13.5px}
-.c-tabbar a.active{color:var(--c-navy);font-weight:600}
+.c-tabbar a.active{color:var(--c-text);font-weight:600}
 .c-tabbar .right{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .c-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--c-line);font-size:13.5px}
 .c-toolbar label{font-weight:600;color:var(--c-navy)}
 .c-toolbar .right{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
 .c-wrap{overflow-x:auto;padding:14px 16px 18px}
 table.c-list{width:100%;border-collapse:collapse;font-size:13.5px;border:1px solid var(--c-line)}
-table.c-list th{background:var(--c-head);color:var(--c-navy);font-weight:700;text-align:left;vertical-align:top;padding:8px 8px;border:1px solid var(--c-line);font-size:13.5px}
+table.c-list th{background:var(--c-head);color:var(--c-text);font-weight:700;text-align:left;vertical-align:top;padding:8px 8px;border:1px solid var(--c-line);font-size:13.5px}
 table.c-list th .f{margin-top:6px;display:flex;flex-direction:column;gap:4px;align-items:flex-start;font-weight:400}
 table.c-list td{padding:8px 8px;border:1px solid var(--c-line);vertical-align:top;color:var(--c-text)}
 table.c-list tbody tr:nth-child(even) td{background:var(--c-row-alt)}
-table.c-list td.id{color:var(--c-navy);font-weight:600;white-space:nowrap}
+table.c-list td.id{color:var(--c-text);font-weight:600;white-space:nowrap}
 table.c-list .acts{white-space:nowrap}
 table.c-list .acts a,table.c-list .acts button{display:inline-block;margin:0 4px 4px 0;color:var(--c-link);background:none;border:0;padding:0;cursor:pointer;font-size:15px}
 table.c-list .acts a:hover,table.c-list .acts button:hover{color:var(--c-link-hover)}
 table.c-list .acts button.danger{color:var(--c-bad)}
-.c-tag{display:inline-block;border:1px solid #9aa6b2;background:#eef1f4;color:#3b4a59;font-size:10px;font-weight:700;padding:0 4px;border-radius:2px;letter-spacing:.04em;margin-left:4px;vertical-align:middle}
+.c-tag{display:inline-block;border:1px solid #2b3135;background:#f2f2f2;color:#2b3135;font-size:10px;font-weight:700;padding:0 4px;border-radius:2px;letter-spacing:.04em;margin-left:4px;vertical-align:middle}
 .c-state{white-space:nowrap}
 .c-state.submitted{color:var(--c-warn)}
 .c-state.approved{color:var(--c-ok)}
@@ -116,26 +135,28 @@ table.c-list .acts button.danger{color:var(--c-bad)}
 .c-empty{padding:30px;text-align:center;color:var(--c-muted)}
 
 /* ---- controls ------------------------------------------------------------------ */
-input[type=text],input[type=search],input[type=email],input[type=number],input[type=date],select,textarea{font:inherit;font-size:13.5px;color:var(--c-text);background:#fff;border:1px solid #b9c2cb;border-radius:3px;padding:5px 8px}
-input:focus,select:focus,textarea:focus{outline:2px solid #8fbbdc;outline-offset:1px}
-table.c-list th input,table.c-list th select{font-size:13px;padding:3px 6px;max-width:170px}
-.c-btn{display:inline-block;font:inherit;font-size:13px;font-weight:600;border:1px solid #b9c2cb;background:var(--c-btn);color:var(--c-btn-text);border-radius:3px;padding:5px 11px;cursor:pointer;line-height:1.3;text-decoration:none}
-.c-btn:hover{background:#c4ccd4;text-decoration:none;color:var(--c-btn-text)}
-.c-btn.sm{padding:2px 8px;font-size:12px}
-.c-btn.primary{background:var(--c-bar);border-color:var(--c-bar-dark);color:#fff}
-.c-btn.primary:hover{background:var(--c-bar-dark);color:#fff}
+/* Bootstrap 4 form-control and btn-secondary, which is what Collent uses */
+input[type=text],input[type=search],input[type=email],input[type=number],input[type=date],select,textarea{font:inherit;font-size:14px;color:#495057;background:#fff;border:1px solid #ced4da;border-radius:.25rem;padding:.375rem .75rem;line-height:1.5}
+input:focus,select:focus,textarea:focus{outline:0;border-color:#80bdff;box-shadow:0 0 0 .2rem rgba(0,123,255,.25)}
+table.c-list th input,table.c-list th select{font-size:13px;padding:.2rem .5rem;max-width:170px}
+.c-btn{display:inline-block;font:inherit;font-size:14px;font-weight:400;border:1px solid var(--c-btn);background:var(--c-btn);color:var(--c-btn-text);border-radius:.25rem;padding:.375rem .75rem;cursor:pointer;line-height:1.5;text-decoration:none}
+.c-btn:hover{background:#5a6268;border-color:#545b62;text-decoration:none;color:#fff}
+.c-btn.sm{padding:.2rem .5rem;font-size:12.5px;border-radius:.2rem}
+.c-btn.primary{background:var(--c-link);border-color:var(--c-link);color:#fff}
+.c-btn.primary:hover{background:var(--c-link-hover);border-color:var(--c-link-hover);color:#fff}
 .c-btn.danger{background:#fff;border-color:var(--c-bad);color:var(--c-bad)}
+.c-btn.danger:hover{background:var(--c-bad);color:#fff}
 .c-btn[disabled]{opacity:.55;cursor:default}
 .c-switch{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--c-navy)}
 
 /* ---- forms -------------------------------------------------------------------- */
 .c-form{padding:18px 20px 22px;max-width:900px}
-.c-form h3{background:var(--c-head);border:1px solid var(--c-line);border-radius:3px;padding:7px 12px;font-size:14px;font-weight:700;color:var(--c-navy);margin:16px 0 12px}
+.c-form h3{background:var(--c-head);border:1px solid var(--c-line);border-radius:3px;padding:7px 12px;font-size:14px;font-weight:700;color:var(--c-text);margin:16px 0 12px}
 .c-form h3:first-child{margin-top:0}
 .c-row{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
 @media (max-width:640px){.c-row{grid-template-columns:1fr}}
 .c-field{margin:0 0 12px}
-.c-field label{display:block;font-weight:600;font-size:13px;color:var(--c-navy);margin-bottom:3px}
+.c-field label{display:block;font-weight:600;font-size:13px;color:var(--c-text);margin-bottom:3px}
 .c-field input[type=text],.c-field input[type=email],.c-field input[type=number],.c-field input[type=date],.c-field select,.c-field textarea{width:100%}
 .c-field textarea{min-height:120px;resize:vertical}
 .c-hint{font-size:12.5px;color:var(--c-muted);margin:3px 0 0}
