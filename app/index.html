@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-<link rel="stylesheet" href="assets/collent.css">
+<link rel="stylesheet" href="assets/collent.css?v=202610061025">
 </head>
 <body>
 <header class="c-header" id="chrome-header"></header>
@@ -64,14 +64,14 @@
         <h2><i class="fa-solid fa-circle-info"></i> Information</h2>
         <ul>
           <li class="c-collapse"><a class="c-toggle"><i class="fa-solid fa-caret-right"></i> About the project period</a>
-            <ul class="c-sub">
+            <ul class="c-sub" hidden>
               <li>Three weeks of supervised research in P3 (January) and P6 (June), 5 ECTS.</li>
               <li>Students list a top five from the catalogue; the committee allocates.</li>
               <li>A project runs only if it reaches its minimum number of students.</li>
             </ul>
           </li>
           <li class="c-collapse"><a class="c-toggle"><i class="fa-solid fa-caret-right"></i> How to offer a project</a>
-            <ul class="c-sub">
+            <ul class="c-sub" hidden>
               <li>One page of description plus the lab and group-size details, through the <a href="submit.html">form</a>.</li>
               <li>The committee reviews it, assigns a code and publishes the catalogue.</li>
               <li>Meet the group in the period before; budget table a month ahead; grades within five days after.</li>
@@ -93,10 +93,10 @@
 <footer class="c-footer" id="chrome-footer"></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="assets/config.js"></script>
-<script src="assets/demo-data.js"></script>
-<script src="assets/supabase.js"></script>
-<script src="assets/chrome.js"></script>
+<script src="assets/config.js?v=202610061025"></script>
+<script src="assets/demo-data.js?v=202610061025"></script>
+<script src="assets/supabase.js?v=202610061025"></script>
+<script src="assets/chrome.js?v=202610061025"></script>
 <script>
 (async function () {
   const $ = (id) => document.getElementById(id);
@@ -108,7 +108,9 @@
   function wireToggles(root) {
     (root || document).querySelectorAll(".c-toggle").forEach((t) => t.addEventListener("click", (e) => {
       e.preventDefault();
-      t.closest(".c-collapse").classList.toggle("open");
+      const li = t.closest(".c-collapse");
+      const open = li.classList.toggle("open");
+      li.querySelectorAll(":scope > .c-sub").forEach((u) => { u.hidden = !open; });   // works even with a stale stylesheet
     }));
   }
   wireToggles();
@@ -135,7 +137,7 @@
           ["State", [p.submissions_open ? "collecting descriptions" : "", p.catalogue_published ? "catalogue published" : ""].filter(Boolean).join(", ")]]
           .filter(([, v]) => v);
         return `<li class="c-collapse"><a class="c-toggle"><i class="fa-solid fa-caret-right"></i> ${esc(p.label)}</a>
-          <ul class="c-sub">${dates.map(([l, v]) => `<li>${esc(l)}: ${esc(v)}</li>`).join("")}</ul></li>`;
+          <ul class="c-sub" hidden>${dates.map(([l, v]) => `<li>${esc(l)}: ${esc(v)}</li>`).join("")}</ul></li>`;
       }).join("");
       wireToggles($("period-list"));
     }
