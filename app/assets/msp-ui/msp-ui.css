@@ -61,6 +61,8 @@
   --msp-sb-w-drawer:280px; /* off-canvas drawer below 900px */
   --msp-main-w:860px;      /* reading column */
   --msp-main-w-wide:1100px;
+  /* stacking: sidebar 200, its overlay 190, drawer toggle 300; site modals go above these */
+  --msp-z-sidebar:200; --msp-z-toggle:300; --msp-z-modal:500;
 }
 
 /* 3. Base -------------------------------------------------------------------- */
@@ -77,7 +79,7 @@ body.msp-body{margin:0;font-family:var(--msp-font);background:var(--msp-g0);colo
 .msp-app{display:flex;min-height:100vh}
 
 /* sidebar */
-.msp-sidebar{width:var(--msp-sb-w);background:var(--msp-navy);color:#fff;position:fixed;top:0;left:0;bottom:0;z-index:200;display:flex;flex-direction:column;overflow-y:auto;box-shadow:4px 0 24px rgba(1,27,60,.12);font-family:var(--msp-font);font-size:14px;line-height:1.6;box-sizing:border-box;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.18) transparent}
+.msp-sidebar{width:var(--msp-sb-w);background:var(--msp-navy);color:#fff;position:fixed;top:0;left:0;bottom:0;z-index:var(--msp-z-sidebar);align-self:auto;display:flex;flex-direction:column;overflow-y:auto;box-shadow:4px 0 24px rgba(1,27,60,.12);font-family:var(--msp-font);font-size:14px;line-height:1.6;box-sizing:border-box;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.18) transparent}
 .msp-sidebar *,.msp-sidebar *::before,.msp-sidebar *::after{box-sizing:border-box}
 .msp-sidebar a{text-decoration:none}
 
@@ -89,7 +91,7 @@ body.msp-body{margin:0;font-family:var(--msp-font);background:var(--msp-g0);colo
 
 .msp-sb-nav{padding:20px 14px;flex:1}
 .msp-sb-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.3);padding:0 10px;margin:0 0 8px}
-.msp-sb-label+.msp-sb-label{margin-top:16px}
+.msp-sb-link+.msp-sb-label,.msp-sb-divider+.msp-sb-label{margin-top:18px}
 .msp-sb-link{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;font-size:13.5px;font-weight:500;color:rgba(255,255,255,.55);text-decoration:none;transition:all .2s;border:none;background:none;cursor:pointer;font-family:inherit;width:100%;text-align:left;margin-bottom:4px}
 .msp-sb-link:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9)}
 .msp-sb-link.active{background:rgba(255,255,255,.12);color:#fff;font-weight:600;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
@@ -119,16 +121,16 @@ body.msp-body{margin:0;font-family:var(--msp-font);background:var(--msp-g0);colo
 .msp-sb-hub:hover{color:rgba(255,255,255,.85)}
 .msp-sb-hub svg{width:12px;height:12px}
 
-/* content */
-.msp-content{flex:1;margin-left:var(--msp-sb-w);min-height:100vh;background:var(--msp-g0);min-width:0}
-.msp-main{max-width:var(--msp-main-w);margin:0 auto;padding:32px 32px 80px;box-sizing:border-box}
+/* content: a flex column so a page footer sits at the bottom on short pages */
+.msp-content{flex:1;margin-left:var(--msp-sb-w);min-height:100vh;background:var(--msp-g0);min-width:0;display:flex;flex-direction:column}
+.msp-main{max-width:var(--msp-main-w);width:100%;flex:1 0 auto;margin:0 auto;padding:32px 32px 80px;box-sizing:border-box}
 .msp-main.wide{max-width:var(--msp-main-w-wide)}
 .msp-main.full{max-width:none}
 
 /* mobile toggle + overlay */
-.msp-sb-toggle{display:none;position:fixed;top:12px;left:12px;z-index:300;width:40px;height:40px;border-radius:10px;background:var(--msp-navy);color:#fff;border:none;cursor:pointer;align-items:center;justify-content:center;box-shadow:var(--msp-sh-md);padding:0}
+.msp-sb-toggle{display:none;position:fixed;top:12px;left:12px;z-index:var(--msp-z-toggle);width:40px;height:40px;border-radius:10px;background:var(--msp-navy);color:#fff;border:none;cursor:pointer;align-items:center;justify-content:center;box-shadow:var(--msp-sh-md);padding:0}
 .msp-sb-toggle svg{width:20px;height:20px}
-.msp-sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:190}
+.msp-sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:calc(var(--msp-z-sidebar) - 10)}
 .msp-skip{position:absolute;left:-9999px;top:8px;background:#fff;color:var(--msp-navy);padding:8px 12px;border-radius:6px;z-index:400;font-weight:600}
 .msp-skip:focus{left:8px}
 
@@ -138,18 +140,25 @@ body.msp-body{margin:0;font-family:var(--msp-font);background:var(--msp-g0);colo
   .msp-content{margin-left:var(--msp-sb-w-md)}
   .msp-sb-link{padding:10px 12px;font-size:12.5px}
   .msp-sb-ico{width:32px;height:32px}
+  .msp-sb-sub{font-size:8.5px;letter-spacing:.06em}
 }
 @media(max-width:900px){
   .msp-sidebar{transform:translateX(-100%);transition:transform .3s ease;width:var(--msp-sb-w-drawer)}
   .msp-sidebar.open{transform:translateX(0)}
   .msp-content{margin-left:0}
-  .msp-sb-toggle{display:flex}
+  .msp-sb-toggle{display:flex;transition:left .3s ease}
+  /* while the drawer is open the button becomes the X and sits in the drawer's top-right corner */
+  body.msp-sb-locked .msp-sb-toggle{left:calc(var(--msp-sb-w-drawer) - 52px);background:rgba(255,255,255,.12);box-shadow:none}
   .msp-sb-overlay.show{display:block}
   body.msp-sb-locked{overflow:hidden}
   .msp-main{padding-top:64px}
 }
 @media(max-width:640px){
   .msp-main{padding:64px 16px 60px}
+  .msp-hero{padding:22px 20px;border-radius:12px}
+  .msp-hero h1,.msp-hero h2{font-size:22px}
+  .msp-card-b{padding:16px}
+  .msp-card-h,.msp-card-f{padding:14px 16px}
 }
 @media print{
   .msp-sidebar,.msp-sb-toggle,.msp-sb-overlay{display:none!important}
@@ -247,6 +256,11 @@ body.msp-body{margin:0;font-family:var(--msp-font);background:var(--msp-g0);colo
 .msp-chip:hover{border-color:var(--msp-g3);color:var(--msp-g7)}
 .msp-chip.active{background:var(--msp-navy);color:#fff;border-color:var(--msp-navy)}
 .msp-chips{display:flex;gap:6px;flex-wrap:wrap}
+/* chip as a checkbox/radio label: <label class="msp-chip"><input type="checkbox"> Lab</label> */
+.msp-chip{position:relative}
+.msp-chip input[type=checkbox],.msp-chip input[type=radio]{position:absolute;opacity:0;width:0;height:0;margin:0;pointer-events:none}
+.msp-chip:has(input:checked){background:var(--msp-navy);color:#fff;border-color:var(--msp-navy)}
+.msp-chip:has(input:focus-visible){outline:2px solid var(--msp-sky);outline-offset:2px}
 .msp-tag{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:5px;letter-spacing:.03em;background:var(--msp-g1);color:var(--msp-g5)}
 .msp-tag.pre{background:var(--msp-warn-bg);color:var(--msp-warn);border:1px solid var(--msp-warn-bd)}
 .msp-tag.co{background:var(--msp-inf-bg);color:var(--msp-inf);border:1px solid var(--msp-inf-bd)}
@@ -301,6 +315,17 @@ body.msp-body{margin:0;font-family:var(--msp-font);background:var(--msp-g0);colo
 .msp-tab{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:10px 14px;border-radius:7px;cursor:pointer;border:none;background:transparent;font-size:13px;font-weight:500;color:var(--msp-g5);transition:all .2s;font-family:inherit;text-decoration:none}
 .msp-tab:hover{background:var(--msp-g0);color:var(--msp-g7)}
 .msp-tab.active{background:var(--msp-navy);color:#fff;box-shadow:var(--msp-sh-md)}
+
+/* modal: <div class="msp-modal-overlay show"><div class="msp-modal" role="dialog">...</div></div> */
+.msp-modal-overlay{display:none;position:fixed;inset:0;background:rgba(1,27,60,.55);z-index:var(--msp-z-modal);align-items:center;justify-content:center;padding:16px;box-sizing:border-box}
+.msp-modal-overlay.show{display:flex}
+.msp-modal{background:#fff;border-radius:var(--msp-rl);width:100%;max-width:640px;max-height:90vh;overflow:auto;box-shadow:var(--msp-sh-lg);font-family:var(--msp-font);color:var(--msp-g9)}
+.msp-modal-h{padding:16px 24px;border-bottom:1px solid var(--msp-g1);display:flex;align-items:center;gap:12px}
+.msp-modal-h h2,.msp-modal-h h3{margin:0;font-size:16px;font-weight:700;font-family:var(--msp-font-display);flex:1}
+.msp-modal-x{background:none;border:none;cursor:pointer;color:var(--msp-g4);font-size:20px;line-height:1;padding:4px;border-radius:6px}
+.msp-modal-x:hover{background:var(--msp-g1);color:var(--msp-g7)}
+.msp-modal-b{padding:24px}
+.msp-modal-f{padding:16px 24px;border-top:1px solid var(--msp-g1);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
 
 /* page footer inside the content column */
 .msp-footer{text-align:center;padding:20px 24px;font-size:11px;color:var(--msp-g4);border-top:1px solid var(--msp-g2);background:#fff;line-height:1.6}

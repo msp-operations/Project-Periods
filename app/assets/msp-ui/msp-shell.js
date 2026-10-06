@@ -45,6 +45,15 @@
    Methods
      MSPShell.setActive(href)   MSPShell.setMeta(html)   MSPShell.open() / close() / toggle()
      MSPShell.icon(name)        returns the SVG string for an icon name
+
+   Site CSS rules to keep in mind
+     - Never style bare `aside`, `nav`, `header` or `main` selectors: the injected
+       frame is an <aside> with a <nav> inside, and a site rule like
+       `aside{align-self:start}` will deform it. Scope your own selectors by class.
+     - The sidebar is z-index 200 (overlay 190, drawer toggle 300). Put your own
+       modals above that: `z-index:var(--msp-z-modal)` (500).
+     - Full-width `position:fixed` bars (cart, toast) need the sidebar offset:
+       `left:var(--msp-sb-w)` (220px below 1100px, 0 below 900px).
    ========================================================================== */
 (function (global) {
   'use strict';
