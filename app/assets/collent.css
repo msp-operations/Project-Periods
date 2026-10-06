@@ -45,7 +45,7 @@ code{font-size:12.5px;background:#eef1f4;padding:1px 4px;border-radius:3px}
 .c-logo{display:flex;align-items:center;gap:12px;color:#fff;text-decoration:none}
 .c-logo:hover{text-decoration:none;color:#fff}
 .c-um{display:inline-block;border:2px solid #fff;border-radius:3px;padding:2px 5px;font-size:11px;font-weight:700;letter-spacing:.04em;line-height:1.1;text-align:center}
-.c-mark{width:46px;height:46px;display:block}
+.c-mark{width:54px;height:54px;display:block}
 .c-word{font-size:38px;font-weight:700;letter-spacing:-.01em;line-height:1}
 .c-word small{display:block;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;opacity:.85;margin-top:3px}
 .c-center{text-align:center;font-size:16px;font-weight:600;line-height:1.35}
@@ -155,4 +155,4 @@ table.c-list th input,table.c-list th select{font-size:13px;padding:3px 6px;max-
 /* ---- footer ---------------------------------------------------------------------- */
 .c-footer{max-width:980px;margin:40px auto 30px;padding:18px 16px 0;border-top:1px solid var(--c-line);display:flex;justify-content:space-between;align-items:center;gap:20px;font-size:13px;color:var(--c-text)}
 .c-footer .v{font-size:12px;color:var(--c-muted);margin-top:2px}
-.c-footer svg{width:40px;height:40px;opacity:.75}
+.c-footer .c-mark{width:48px;height:48px;flex:none}

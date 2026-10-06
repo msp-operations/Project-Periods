@@ -1,10 +1,9 @@
 /* The shared page chrome (header bar, footer) so every page is identical.
-   Call MSPChrome.render({ active: "dashboard" | "projects" | "submit" | "admin" }). */
+   Call MSPChrome.render({ active: "dashboard" | "projects" | "submit" | "admin" }).
+   The mark is the MSP emblem: white on the blue bar, grey in the footer
+   (both tinted copies of assets/img/msp-logo.png). */
 (function () {
-  const MARK = (fill) => `<svg class="c-mark" viewBox="0 0 48 48" aria-hidden="true"><g fill="${fill}">
-    <circle cx="24" cy="24" r="5.2"/>
-    <circle cx="24" cy="9" r="4.6"/><circle cx="37" cy="16.5" r="4.6"/><circle cx="37" cy="31.5" r="4.6"/>
-    <circle cx="24" cy="39" r="4.6"/><circle cx="11" cy="31.5" r="4.6"/><circle cx="11" cy="16.5" r="4.6"/></g></svg>`;
+  const MARK = (variant) => `<img class="c-mark" src="assets/img/msp-logo-${variant}.png" alt="Maastricht Science Programme">`;
 
   function render(opts) {
     const cfg = window.MSP_CONFIG || {};
@@ -14,7 +13,7 @@
     if (header) header.innerHTML = `
       <a href="index.html" class="c-logo" aria-label="Project Periods home">
         <span class="c-um">UM</span>
-        ${MARK("#ffffff")}
+        ${MARK("white")}
         <span class="c-word">Project Periods</span>
       </a>
       <div class="c-center">Faculty of Science and Engineering<br>Maastricht Science Programme</div>
@@ -28,7 +27,7 @@
         <a href="submit.html">Offer a project</a> &nbsp;|&nbsp; <a href="admin.html">Committee</a>
         <div class="v">Project Periods 0.1 &nbsp;|&nbsp; FSE-MSP Project Committee &nbsp;|&nbsp; &copy; 2026 Maastricht University</div>
       </div>
-      ${MARK("#8a97a4")}`;
+      ${MARK("grey")}`;
   }
   window.MSPChrome = { render, MARK };
 })();
