@@ -165,7 +165,7 @@
     aside.innerHTML =
       '<div class="msp-sb-brand"><a href="' + esc(home) + '">' +
         '<img src="' + esc(base + 'um-wordmark.png') + '" alt="Maastricht University" class="msp-sb-logo">' +
-        '<div class="msp-sb-title">' + esc(cfg.title) + '</div>' +
+        '<div class="msp-sb-title' + (String(cfg.title || '').length > 18 ? ' long' : '') + '">' + esc(cfg.title) + '</div>' +
         '<div class="msp-sb-sub">' + (cfg.subtitle != null ? cfg.subtitle : SUBTITLE) + '</div>' +
       '</a></div>' +
       '<nav class="msp-sb-nav" aria-label="Main">' +
