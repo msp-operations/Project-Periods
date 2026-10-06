@@ -1,9 +1,9 @@
 <!doctype html>
 <!--
   submit.html - the staff project submission form. Replaces the Word template
-  that was emailed to msp-projects@ and re-typed into the bible by ESD.
-  Every field here is a column in the committee's bible or a question on the
-  old form, nothing was added.
+  that was emailed to msp-projects@ and re-typed into the bible by ESD. Every
+  field here is a column in the committee's bible or a question on the old
+  form, nothing was added.
 -->
 <html lang="en">
 <head>
@@ -13,40 +13,25 @@
 <link rel="icon" type="image/png" href="assets/img/msp-logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/styles.css">
-<link rel="stylesheet" href="assets/projects.css">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="assets/collent.css">
 </head>
 <body>
-<header class="topbar">
-  <div class="topbar-inner">
-    <a href="index.html" class="logos" aria-label="Maastricht University, Faculty of Science and Engineering - home">
-      <img class="um-logo" src="assets/img/um-fse-logo.png" alt="Maastricht University - Faculty of Science and Engineering">
-      <span class="divider"></span>
-      <span class="lockup-text">Project Periods<small>Maastricht Science Programme</small></span>
-    </a>
-    <nav>
-      <a href="index.html">Catalogue</a>
-      <a href="submit.html" class="active" aria-current="page">Offer a project</a>
-      <a href="admin.html">Committee login</a>
-    </nav>
-  </div>
-</header>
+<header class="c-header" id="chrome-header"></header>
 
-<main class="pp">
-  <div id="notice-area"></div>
-  <div class="pp-head">
-    <div>
-      <h2>Offer a project for <span id="period-label">the coming project period</span></h2>
-      <p class="pp-sub">One page of description, the practical details the lab coordinators need, and your numbers. The committee reviews it and it appears in the catalogue. Deadline: <strong id="deadline">see the committee's email</strong>.</p>
-    </div>
-  </div>
+<main class="c-page">
+  <h1 class="c-title">Offer a project</h1>
+  <div id="notice"></div>
+  <div class="c-panel white">
+    <div class="c-tabbar"><a class="active" href="submit.html">Form</a><span class="right" id="period-label"></span></div>
 
-  <form class="pp-form" id="form" novalidate>
-    <fieldset>
-      <legend>The project</legend>
-      <div class="pp-row">
-        <div class="field">
+    <form class="c-form" id="form" novalidate>
+      <div class="c-notice plain" id="guidelines">One page of description, the practical details the lab coordinators need, and your numbers. The committee reviews the project and it appears in the catalogue. Deadline: <strong id="deadline">see the committee's email</strong>.</div>
+
+      <h3>The project</h3>
+      <div class="c-row">
+        <div class="c-field">
           <label class="req" for="level">Level</label>
           <select id="level" required>
             <option value="">Choose</option>
@@ -55,122 +40,115 @@
             <option value="3000">3000 (presentation, full paper)</option>
           </select>
         </div>
-        <div class="field">
+        <div class="c-field">
           <label for="slp">Student-led project? Names of the student leaders</label>
           <input type="text" id="slp" placeholder="Leave empty if staff-led">
         </div>
       </div>
-      <div class="field">
+      <div class="c-field">
         <label class="req" for="title">Project title</label>
         <input type="text" id="title" maxlength="120" required>
-        <p class="pp-hint">As it will appear in the booklet. Keep it short; on the transcript SAP wraps it at 45 characters.</p>
+        <p class="c-hint">As it will appear in the booklet. Keep it short: on the transcript SAP wraps it at 45 characters.</p>
       </div>
-      <div class="field">
+      <div class="c-field">
         <label class="req" for="description">Description</label>
         <textarea id="description" required placeholder="What the students will investigate, what they will do day to day, what skills they will learn, and who the project suits. One page at most. A short reading list goes in the next box."></textarea>
-        <div class="pp-counter" id="desc-count">0 words (aim for 250 to 450)</div>
+        <div class="c-counter" id="desc-count">0 words (aim for 250 to 450)</div>
       </div>
-      <div class="field">
+      <div class="c-field">
         <label for="references">References and links</label>
         <textarea id="references" style="min-height:70px" placeholder="APA style, one per line. Links the students will find useful are welcome."></textarea>
       </div>
-    </fieldset>
 
-    <fieldset>
-      <legend>Supervision</legend>
-      <div class="pp-row">
-        <div class="field"><label class="req" for="supervisor">Supervisor</label><input type="text" id="supervisor" required></div>
-        <div class="field"><label class="req" for="supervisor_email">Supervisor email</label><input type="email" id="supervisor_email" required placeholder="name@maastrichtuniversity.nl"></div>
-        <div class="field"><label for="co_supervisor">Co-supervisor</label><input type="text" id="co_supervisor"></div>
-        <div class="field"><label for="co_supervisor_email">Co-supervisor email</label><input type="email" id="co_supervisor_email"></div>
+      <h3>Supervision</h3>
+      <div class="c-row">
+        <div class="c-field"><label class="req" for="supervisor">Supervisor</label><input type="text" id="supervisor" required></div>
+        <div class="c-field"><label class="req" for="supervisor_email">Supervisor email</label><input type="email" id="supervisor_email" required placeholder="name@maastrichtuniversity.nl"></div>
+        <div class="c-field"><label for="co_supervisor">Co-supervisor</label><input type="text" id="co_supervisor"></div>
+        <div class="c-field"><label for="co_supervisor_email">Co-supervisor email</label><input type="email" id="co_supervisor_email"></div>
       </div>
-      <div class="pp-row">
-        <div class="field">
-          <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="external"> Externally supervised (company, MUMC, other faculty or institute)</label>
-        </div>
-        <div class="field"><label for="organisation">Organisation (if external)</label><input type="text" id="organisation"></div>
+      <div class="c-row">
+        <div class="c-field"><label style="display:flex;gap:8px;align-items:center;font-weight:400"><input type="checkbox" id="external"> Externally supervised (company, MUMC, other faculty or institute)</label></div>
+        <div class="c-field"><label for="organisation">Organisation (if external)</label><input type="text" id="organisation"></div>
       </div>
-      <div class="field"><label for="contact_note">Other ways for students to reach you (office hours, Teams, etc.)</label><input type="text" id="contact_note"></div>
-    </fieldset>
+      <div class="c-field"><label for="contact_note">Other ways for students to reach you (office hours, Teams, etc.)</label><input type="text" id="contact_note"></div>
 
-    <fieldset>
-      <legend>Group size</legend>
-      <div class="pp-row">
-        <div class="field"><label class="req" for="min_students">Minimum number of students</label><input type="number" id="min_students" min="1" max="30" required></div>
-        <div class="field"><label class="req" for="max_students">Maximum number of students</label><input type="number" id="max_students" min="1" max="30" required></div>
+      <h3>Group size</h3>
+      <div class="c-row">
+        <div class="c-field"><label class="req" for="min_students">Minimum number of students</label><input type="number" id="min_students" min="1" max="30" required></div>
+        <div class="c-field"><label class="req" for="max_students">Maximum number of students</label><input type="number" id="max_students" min="1" max="30" required></div>
       </div>
-      <p class="pp-hint">The project only runs if it reaches the minimum. Budgets up to EUR 100 times the minimum are approved automatically. Groups above 12 are better split into two parallel groups.</p>
-    </fieldset>
+      <p class="c-hint">The project only runs if it reaches the minimum. Budgets up to EUR 100 times the minimum are approved automatically. Groups above 12 are better split into two parallel groups.</p>
 
-    <fieldset>
-      <legend>Where the project takes place</legend>
-      <div class="pp-checks" id="locations"></div>
+      <h3>Where the project takes place</h3>
+      <div class="c-checks" id="locations"></div>
       <div id="dub30" hidden>
-        <div class="field"><label>Preferred MSP teaching lab(s) at DUB30</label><div class="pp-checks" id="labs"></div>
-          <p class="pp-hint">ML1 only if your research requires it. Supervisors who plan to use the same lab are asked to coordinate days and benches between themselves.</p></div>
-        <div class="field"><label>Analytical instruments required</label><div class="pp-checks" id="instruments"></div></div>
-        <div class="field"><label>Lab facilities required in or near the labs</label><div id="facilities"></div>
-          <p class="pp-hint">There are 5 or 6 CT cabinets and 2 laminar flow hoods in total; at least one fume hood per group in the chemistry and biochemistry labs, extra hoods may be shared by day. Desktops exist only in the physics lab, laptops are scarce.</p></div>
+        <div class="c-field"><label>Preferred MSP teaching lab(s) at DUB30</label><div class="c-checks" id="labs"></div>
+          <p class="c-hint">ML1 only if your research requires it. Supervisors who plan to use the same lab are asked to coordinate days and benches between themselves.</p></div>
+        <div class="c-field"><label>Analytical instruments required</label><div class="c-checks" id="instruments"></div></div>
+        <div class="c-field"><label>Lab facilities required in or near the labs</label><div id="facilities"></div>
+          <p class="c-hint">There are 5 or 6 CT cabinets and 2 laminar flow hoods in total; at least one fume hood per group in the chemistry and biochemistry labs, extra hoods may be shared by day. Desktops exist only in the physics lab, laptops are scarce.</p></div>
       </div>
-      <div class="field"><label for="safety">Safety considerations</label><input type="text" id="safety" placeholder="Chemicals, GMOs, electricity, fieldwork, none"></div>
-      <div class="field"><label for="budget_note">Consumables and chemicals you expect to order (rough list or estimate)</label><input type="text" id="budget_note"></div>
-    </fieldset>
+      <div class="c-field"><label for="safety">Safety considerations</label><input type="text" id="safety" placeholder="Chemicals, GMOs, electricity, fieldwork, none"></div>
+      <div class="c-field"><label for="budget_note">Consumables and chemicals you expect to order (rough list or estimate)</label><input type="text" id="budget_note"></div>
 
-    <div class="field" style="margin:6px 0 18px">
-      <label style="display:flex;gap:8px;align-items:flex-start;font-weight:500"><input type="checkbox" id="confirm"> I will meet the group once or twice in the period before the project period, submit a budget table at least a month before it starts, and send grades within five days after it ends.</label>
+      <h3>Confirmation</h3>
+      <div class="c-field">
+        <label style="display:flex;gap:8px;align-items:flex-start;font-weight:400"><input type="checkbox" id="confirm"> I will meet the group once or twice in the period before the project period, submit a budget table at least a month before it starts, and send grades within five days after it ends.</label>
+      </div>
+      <div id="form-msg"></div>
+      <div class="c-actions">
+        <button type="submit" class="c-btn primary" id="submit-btn">Submit project</button>
+        <button type="reset" class="c-btn">Reset</button>
+      </div>
+    </form>
+
+    <div id="done" hidden class="c-form">
+      <div class="c-notice ok"><strong>Submitted.</strong> <span id="done-text"></span></div>
+      <p><a href="submit.html" class="c-btn">Offer another project</a> <a href="projects.html" class="c-btn">Back to the catalogue</a></p>
     </div>
-    <div id="form-msg"></div>
-    <button type="submit" class="btn btn-primary" id="submit-btn">Submit project</button>
-  </form>
-
-  <div id="done" hidden>
-    <div class="notice ok"><div><strong>Submitted.</strong> <span id="done-text"></span></div></div>
-    <p><a href="submit.html" class="btn btn-ghost">Offer another project</a> <a href="index.html" class="btn btn-ghost">Back to the catalogue</a></p>
   </div>
 </main>
+
+<footer class="c-footer" id="chrome-footer"></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="assets/config.js"></script>
 <script src="assets/demo-data.js"></script>
 <script src="assets/supabase.js"></script>
-<script src="assets/ui.js"></script>
+<script src="assets/chrome.js"></script>
 <script>
 (async function () {
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-  const notify = (kind, msg, where) => { (where || $("notice-area")).innerHTML = `<div class="notice ${kind}"><div>${msg}</div></div>`; };
+  const notify = (kind, msg, where) => { (where || $("notice")).innerHTML = `<div class="c-notice ${kind}">${msg}</div>`; };
+  MSPChrome.render({ active: "submit" });
 
-  // ---- build the choice lists from the data layer so the form and the bible agree
   $("locations").innerHTML = MSP.LOCATIONS.map(([v, l]) => `<label><input type="radio" name="location" value="${esc(v)}"> ${esc(l)}</label>`).join("");
   $("labs").innerHTML = MSP.LABS.map((l) => `<label><input type="checkbox" name="lab" value="${esc(l)}"> ${esc(l)}</label>`).join("");
   $("instruments").innerHTML = MSP.INSTRUMENTS.map((l) => `<label><input type="checkbox" name="instrument" value="${esc(l)}"> ${esc(l)}</label>`).join("");
   $("facilities").innerHTML = MSP.FACILITIES.map(([k, l, t]) => {
     const input = t === "count" ? `<input type="number" min="0" max="9" id="fac-${k}" placeholder="how many">`
       : t === "bool" ? `<input type="checkbox" id="fac-${k}">` : `<input type="text" id="fac-${k}" placeholder="please specify">`;
-    return `<div class="pp-fac"><label for="fac-${k}" style="margin:0">${esc(l)}</label>${input}</div>`;
+    return `<div class="c-fac"><label for="fac-${k}" style="margin:0;font-weight:400">${esc(l)}</label>${input}</div>`;
   }).join("");
-  document.querySelectorAll('input[name="location"]').forEach((r) => r.addEventListener("change", () => {
-    $("dub30").hidden = !r.value.startsWith("DUB30");
-  }));
+  document.querySelectorAll('input[name="location"]').forEach((r) => r.addEventListener("change", () => { $("dub30").hidden = !r.value.startsWith("DUB30"); }));
   $("description").addEventListener("input", () => {
     const n = $("description").value.trim().split(/\s+/).filter(Boolean).length;
     $("desc-count").textContent = n + " words (aim for 250 to 450)";
     $("desc-count").classList.toggle("over", n > 600);
   });
 
-  // ---- which period is open
   let period = null;
-  try { period = await MSP.getOpenPeriod(); } catch (e) { notify("err", "Could not reach the database: " + esc(e.message || e)); }
+  try { period = await MSP.getOpenPeriod(); } catch (e) { notify("bad", "Could not reach the database: " + esc(e.message || e)); }
   if (period) {
     $("period-label").textContent = period.label;
     if (period.description_deadline) $("deadline").textContent = period.description_deadline;
   } else if (MSP.mode === "live") {
-    notify("info", "<strong>Submissions are closed.</strong> The committee opens this form when it collects descriptions for the next period. Questions: " + esc(MSP.config.CONTACT_EMAIL));
+    notify("warn", "<strong>Submissions are closed.</strong> The committee opens this form when it collects descriptions for the next period. Questions: " + esc(MSP.config.CONTACT_EMAIL));
     $("submit-btn").disabled = true;
   }
-  if (MSP.mode === "preview") {
-    notify("info", "<strong>Preview.</strong> Supabase is not connected yet, so the form shows what it would send instead of submitting.");
-  }
+  if (MSP.mode === "preview") notify("", "<strong>Preview.</strong> Supabase is not connected yet, so the form shows what it would send instead of submitting.");
 
   function collect() {
     const v = (id) => $(id).value.trim();
@@ -194,27 +172,25 @@
       facilities, safety: v("safety"), budget_note: v("budget_note"), contact_note: v("contact_note"),
     };
   }
-
   function validate(p) {
     const errs = [];
     if (!p.level) errs.push("choose a level");
     if (!p.title) errs.push("give the project a title");
     if (!p.description) errs.push("write a description");
     if (!p.supervisor || !p.supervisor_email) errs.push("fill in the supervisor and their email");
-    if (!(p.min_students >= 1)) errs.push("minimum number of students");
-    if (!(p.max_students >= p.min_students)) errs.push("maximum must be at least the minimum");
+    if (!(p.min_students >= 1)) errs.push("fill in the minimum number of students");
+    if (!(p.max_students >= p.min_students)) errs.push("make the maximum at least the minimum");
     if (!p.location) errs.push("say where the project takes place");
     if (!$("confirm").checked) errs.push("tick the confirmation");
     return errs;
   }
-
   $("form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const p = collect();
     const errs = validate(p);
-    if (errs.length) { notify("err", "Please " + errs.join(", ") + ".", $("form-msg")); return; }
+    if (errs.length) { notify("bad", "Please " + errs.join(", ") + ".", $("form-msg")); return; }
     if (MSP.mode === "preview") {
-      notify("info", "<strong>Preview.</strong> This is what would be submitted:<pre style='white-space:pre-wrap;font-size:12px'>" + esc(JSON.stringify(p, null, 2)) + "</pre>", $("form-msg"));
+      notify("", "<strong>Preview.</strong> This is what would be submitted:<pre style='white-space:pre-wrap;font-size:12px;font-weight:400'>" + esc(JSON.stringify(p, null, 2)) + "</pre>", $("form-msg"));
       return;
     }
     const btn = $("submit-btn"); btn.disabled = true; btn.textContent = "Submitting";
@@ -222,10 +198,9 @@
       await MSP.submitProject(p);
       $("form").hidden = true; $("done").hidden = false;
       $("done-text").textContent = `"${p.title}" (${p.level}-level, ${p.min_students} to ${p.max_students} students) is with the committee. They will contact ${p.supervisor_email} if anything needs changing.`;
-      if (window.MSPUI) MSPUI.confetti({ count: 60 });
     } catch (err) {
       const msg = { SUBMISSIONS_CLOSED: "Submissions are closed for this period.", PERIOD_NOT_FOUND: "The period is no longer open. Reload the page." }[err.code] || (err.message || String(err));
-      notify("err", esc(msg), $("form-msg"));
+      notify("bad", esc(msg), $("form-msg"));
       btn.disabled = false; btn.textContent = "Submit project";
     }
   });

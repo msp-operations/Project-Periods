@@ -26,11 +26,14 @@ dashboard run in preview mode and need a Supabase project to go live. See *Roadm
 │   ├─ demo.py             synthetic data at real scale (550 students, 80 projects), no real people
 │   ├─ cli.py              python -m allocator demo | check | allocate
 │   └─ tests/              11 tests: rules, readers, full-scale run
-├─ app/                    The website (plain HTML/CSS/JS, same house style as msp-tutoring.nl)
-│   ├─ index.html          the catalogue (replaces the Word booklet)
+├─ app/                    The website (plain HTML/CSS/JS, styled like Collent, the BTR platform)
+│   ├─ index.html          the dashboard: period notice, dates, numbers, links
+│   ├─ projects.html       the catalogue as a filterable list (replaces the Word booklet)
 │   ├─ submit.html         staff project submission form (replaces the Word template by email)
 │   ├─ admin.html          committee dashboard: review, codes, publish, exports
 │   ├─ assets/config.js    the one file to edit when connecting Supabase
+│   ├─ assets/collent.css  the Collent-style skin (Open Sans, Font Awesome icons)
+│   ├─ assets/chrome.js    the shared header bar and footer
 │   ├─ assets/supabase.js  data layer (live Supabase or offline preview)
 │   └─ supabase/schema.sql tables, the submit function, Row-Level Security
 ├─ index.html              root redirect to app/
@@ -83,7 +86,8 @@ Outputs in `out/`:
 ## The website
 
 Open `app/index.html` in a browser and it runs in **preview mode** with sample projects: good enough to
-show the committee the flow. To go live:
+show the committee the flow. The look follows Collent (the FSE-MSP bachelor thesis platform) on purpose,
+so staff meet one visual language for theses and projects. To go live:
 
 1. Create a Supabase project (EU region, the "MSP" organisation that hosts the tutoring tool).
 2. Run `app/supabase/schema.sql` in the SQL editor, then `insert into admin_user (email) values (...)` for each committee member.

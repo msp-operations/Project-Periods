@@ -1,0 +1,135 @@
+<!doctype html>
+<!--
+  projects.html - the catalogue as a Collent-style list: filters in the
+  column headers, one row per project, the eye icon opens the full description.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Projects - MSP Project Periods</title>
+<link rel="icon" type="image/png" href="assets/img/msp-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="assets/collent.css">
+</head>
+<body>
+<header class="c-header" id="chrome-header"></header>
+
+<main class="c-page">
+  <h1 class="c-title">Projects</h1>
+  <div id="notice"></div>
+  <div class="c-panel white">
+    <div class="c-tabbar"><a class="active" href="projects.html">List</a><span class="right" id="period-label"></span></div>
+    <div class="c-wrap">
+      <table class="c-list">
+        <thead><tr>
+          <th>ID</th>
+          <th>Summary
+            <div class="f"><input type="search" id="q" placeholder="Search..."><span><button class="c-btn sm" id="btn-filter">Filter</button> <button class="c-btn sm" id="btn-reset">Reset</button></span></div></th>
+          <th>Level<div class="f"><select id="f-level"><option value="">All</option><option>1000</option><option>2000</option><option>3000</option></select></div></th>
+          <th>Supervisor<div class="f"><select id="f-sup"><option value="">All</option></select></div></th>
+          <th>Students</th>
+          <th>Location<div class="f"><select id="f-loc"><option value="">All</option></select></div></th>
+          <th>Labs</th>
+          <th>Actions</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <div class="c-empty" id="empty" hidden>No projects match.</div>
+    </div>
+  </div>
+</main>
+
+<footer class="c-footer" id="chrome-footer"></footer>
+
+<div class="c-modal-bg" id="modal">
+  <div class="c-modal">
+    <div class="c-modal-head"><span id="m-title">Project</span><button id="m-x" aria-label="Close">&times;</button></div>
+    <div class="c-modal-body"><dl class="c-detail" id="m-body"></dl></div>
+    <div class="c-modal-foot"><button class="c-btn" id="m-close">Close</button></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/config.js"></script>
+<script src="assets/demo-data.js"></script>
+<script src="assets/supabase.js"></script>
+<script src="assets/chrome.js"></script>
+<script>
+(async function () {
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  MSPChrome.render({ active: "projects" });
+
+  let projects = [];
+  try {
+    const periods = await MSP.getPeriods();
+    const pub = periods.find((p) => p.catalogue_published);
+    $("period-label").textContent = pub ? pub.label : "no catalogue published";
+    projects = pub ? await MSP.getCatalogue(pub.id) : [];
+    if (MSP.mode === "preview") $("notice").innerHTML = '<div class="c-notice">Preview: sample projects, Supabase not connected yet (see <code>app/assets/config.js</code>).</div>';
+  } catch (e) {
+    $("notice").innerHTML = '<div class="c-notice bad">Could not load the catalogue: ' + esc(e.message || e) + '</div>';
+  }
+
+  // filter options from the data
+  const sups = [...new Set(projects.flatMap((p) => [p.supervisor, p.co_supervisor]).filter(Boolean))].sort();
+  $("f-sup").innerHTML += sups.map((s) => `<option>${esc(s)}</option>`).join("");
+  const locs = [...new Set(projects.map((p) => p.location).filter(Boolean))].sort();
+  $("f-loc").innerHTML += locs.map((s) => `<option>${esc(s)}</option>`).join("");
+  const urlLevel = new URLSearchParams(location.search).get("level");
+  if (urlLevel) $("f-level").value = urlLevel;
+
+  const facText = (f) => Object.entries(f || {}).map(([k, v]) => {
+    const label = (MSP.FACILITIES.find((x) => x[0] === k) || [k, k])[1];
+    return v === true ? label : `${label}: ${v}`;
+  }).join(", ");
+
+  function render() {
+    const q = $("q").value.trim().toLowerCase(), lv = $("f-level").value, su = $("f-sup").value, lo = $("f-loc").value;
+    const list = projects.filter((p) => (!lv || p.level === lv) && (!su || p.supervisor === su || p.co_supervisor === su) && (!lo || p.location === lo) &&
+      (!q || [p.code, p.title, p.supervisor, p.co_supervisor, p.description, p.slp_leaders].join(" ").toLowerCase().includes(q)));
+    $("empty").hidden = list.length > 0;
+    $("rows").innerHTML = list.map((p) => `<tr>
+      <td class="id">${esc(p.code || "")}</td>
+      <td>${esc(p.title)}; ${esc(p.supervisor)}${p.co_supervisor ? "; " + esc(p.co_supervisor) : ""}${p.slp_leaders ? "; student-led: " + esc(p.slp_leaders) : ""}</td>
+      <td>${esc(p.level)}${p.slp_leaders ? '<span class="c-tag">SLP</span>' : ""}${p.external ? '<span class="c-tag">EXT</span>' : ""}</td>
+      <td>${esc(p.supervisor)}${p.co_supervisor ? "<br>" + esc(p.co_supervisor) : ""}</td>
+      <td>${esc(p.min_students)} - ${esc(p.max_students)}</td>
+      <td>${esc(p.location || "")}</td>
+      <td>${esc((p.labs || []).join(", "))}</td>
+      <td class="acts"><a href="#" data-view="${esc(p.id)}" title="View"><i class="fa-solid fa-eye"></i></a>
+        <a href="mailto:${esc(p.supervisor_email)}" title="Email the supervisor"><i class="fa-solid fa-envelope"></i></a></td>
+    </tr>`).join("");
+    $("rows").querySelectorAll("[data-view]").forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); view(projects.find((p) => p.id === a.dataset.view)); }));
+  }
+  function view(p) {
+    $("m-title").textContent = `${p.code ? p.code + ". " : ""}${p.title}`;
+    const rows = [
+      ["Level", p.level + (p.slp_leaders ? " (student-led)" : "") + (p.external ? " (external" + (p.organisation ? ": " + p.organisation : "") + ")" : "")],
+      ["Supervisor", p.supervisor + (p.supervisor_email ? " (" + p.supervisor_email + ")" : "")],
+      ["Co-supervisor", p.co_supervisor ? p.co_supervisor + (p.co_supervisor_email ? " (" + p.co_supervisor_email + ")" : "") : ""],
+      ["Student leaders", p.slp_leaders], ["Number of students", `${p.min_students} to ${p.max_students}`],
+      ["Location", p.location], ["Labs", (p.labs || []).join(", ")], ["Instruments", (p.instruments || []).join(", ")],
+      ["Facilities", facText(p.facilities)], ["Safety", p.safety], ["Contact", p.contact_note],
+      ["Description", p.description, "desc"], ["References", p.references],
+    ].filter(([, v]) => v);
+    $("m-body").innerHTML = rows.map(([l, v, cls]) => `<dt>${esc(l)}</dt><dd class="${cls || ""}">${esc(v)}</dd>`).join("");
+    $("modal").classList.add("open");
+  }
+  const close = () => $("modal").classList.remove("open");
+  $("m-close").addEventListener("click", close); $("m-x").addEventListener("click", close);
+  $("modal").addEventListener("click", (e) => { if (e.target === $("modal")) close(); });
+
+  $("btn-filter").addEventListener("click", render);
+  $("q").addEventListener("keydown", (e) => { if (e.key === "Enter") render(); });
+  ["f-level", "f-sup", "f-loc"].forEach((id) => $(id).addEventListener("change", render));
+  $("btn-reset").addEventListener("click", () => { $("q").value = ""; $("f-level").value = ""; $("f-sup").value = ""; $("f-loc").value = ""; render(); });
+  render();
+})();
+</script>
+</body>
+</html>
